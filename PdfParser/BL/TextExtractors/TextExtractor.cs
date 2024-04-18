@@ -1,5 +1,5 @@
 ﻿using PdfParser.BL.TextExtractors.Interfaces;
-using PdfParser.Extentions;
+using PdfParser.Extensions;
 using PdfParser.ReferenceData;
 using PdfParser.ReferenceData.Interfaces;
 
@@ -16,14 +16,16 @@ namespace PdfParser.BL.TextExtractors
         internal List<string> keyWords; // справочник ключевых слов для выборки из распасенных данных
         internal List<string> exclusions; // справочник ключевых слов для исключения элементов списка из выборки
         internal List<string> endSliceWords = new List<string>();
-        internal static List<string> usedValues; // список для уже использованных выбранных значений. Используется только для получения наименований компаний
+        internal static Dictionary<string, string> usedTokens; // список для уже использованных выбранных значений. Используется только для получения наименований компаний
+        internal Token token = new Token();
 
         public TextExtractor(List<string> parsedData) //инициализация
         {
             this.parsedData = parsedData;
             keyWords = new List<string>();
 
-            usedValues = new List<string>();
+            usedTokens = new Dictionary<string, string>();
+            //usedToken = string.Empty;
 
             endSliceWords = new List<string>()
             {
@@ -68,14 +70,17 @@ namespace PdfParser.BL.TextExtractors
         //Первоначальная выборка данных из парсинга по ключевым словам
         internal virtual List<string> ExtractText(List<string> keyWords)
         {
-            var slice = parsedData.SliceListBeforeWords(endSliceWords);
+            var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords);
+
             return extraction;
         }
 
         public virtual string GetResultValue() //Стартовый основной метод получения готового результата
         {
-            return GetResultByIndex(new Invoice(), comparator.GetIndexByPartialRatio, keyWords);
+            var result = GetResultByIndex(new Invoice(), comparator.GetIndexByPartialRatio, keyWords);
+
+            return result;
         }
     }
 }

@@ -1,5 +1,6 @@
-﻿using PdfParser.Extentions;
+﻿using PdfParser.Extensions;
 using PdfParser.ReferenceData;
+using PdfParser.ReferenceData.CompanyName;
 
 namespace PdfParser.BL.TextExtractors
 {
@@ -17,24 +18,31 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractText(List<string> keyWords)
         {
-            //var slice = parsedData.SliceListBeforeWords(endSliceWords);
-            var slice = parsedData.SliceListByTwoWords(usedValues, endSliceWords);
-            var extractions = slice.CreateListByKeyWords(keyWords);
-            extractions.RemoveElementsFromListByWords(exclusions);
-            extractions.RemoveTheOnlyWordElementFromList();
-            if (usedValues.Count > 0)
-            {
-                extractions.RemoveElementsFromListByWords(usedValues); // все тоже самое как и получателя, только дополнительно удаляем уже выбранного получателя платежа из списка
+            var slice = parsedData.SliceListByTwoWords(usedTokens[token.recipientName], endSliceWords);
+            var extraction = slice.CreateListByKeyWords(keyWords.Union(referenceData.GetReferenceWords()).ToList());
+            extraction.RemoveElementsFromListByWords(exclusions);
+            extraction.RemoveTheOnlyWordElementFromList();
+            if (usedTokens[token.recipientName] != "Нет данных!")
+            {                
+                extraction = extraction.RemoveElementsFromListByToken(usedTokens[token.recipientName]); // все тоже самое как и получателя, только дополнительно удаляем уже выбранного получателя платежа из списка
+
+                var weghtsMatrix = extraction.SetWeightsByKeyWords(keyWords.Union(referenceData.GetReferenceWords()).ToList());
+
+                if (weghtsMatrix.Count > 0)
+                {
+                    extraction = weghtsMatrix.GetMostHeavyElements();
+
+                }
             }
 
-            return extractions;
+            return extraction;
         }
 
         public override string GetResultValue()
         {
             var result = GetResultByExtraction(new PayerName(), comparator.ExtractOne, comparator.GetIndexByTokenRatio, keyWords);
-            var valueToSave = result.Replace(" - Уровень доверия низкий!", "");
-            usedValues.Add(valueToSave); // плательщика тоже добавляем в статический список
+            usedTokens[token.payerName] = result.Replace(" - Уровень доверия низкий!", "").Trim();  // запоминаем наш выбор в статическом списке
+
             return result;
         }
     }

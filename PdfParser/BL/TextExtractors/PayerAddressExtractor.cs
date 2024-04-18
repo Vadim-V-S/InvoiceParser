@@ -1,4 +1,4 @@
-﻿using PdfParser.Extentions;
+﻿using PdfParser.Extensions;
 using PdfParser.ReferenceData;
 
 namespace PdfParser.BL.TextExtractors
@@ -17,15 +17,15 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractText(List<string> keyWords)
         {
-            var slice = parsedData.SliceListBeforeWords(endSliceWords);
+            var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords);
             extraction.RemoveElementsFromListByWords(exclusions);
-            extraction.RemoveElementsFromListByWords(usedValues);
-            if (usedValues.Count > 0)
+            extraction.RemoveElementsFromListByToken(usedTokens[token.recipientAddress]);
+            if (usedTokens.Count > 0)
             {
-                var result = parsedData.GetClosestElementToWord(usedValues[1], extraction); // находим адрес который находится ближе всего к плательщику, у получателя такого не делали, т.к первым адрес в списке скорее всего всегда будет получателя
+                var result = parsedData.GetClosestElementToWord(usedTokens[token.recipientAddress], extraction); // находим адрес который находится ближе всего к плательщику, у получателя такого не делали, т.к первым адрес в списке скорее всего всегда будет получателя
 
-                usedValues.Clear();
+                usedTokens.Clear();
                 return result;
             }
             return extraction;
@@ -33,7 +33,10 @@ namespace PdfParser.BL.TextExtractors
 
         public override string GetResultValue()
         {
-            return GetResultByIndex(new RecipientAddress(), comparator.GetIndexByTokenRatio, keyWords);
+            var result = GetResultByIndex(new RecipientAddress(), comparator.GetIndexByTokenRatio, keyWords);
+            usedTokens[token.payerAddress] = result;
+
+            return result;
         }
     }
 }

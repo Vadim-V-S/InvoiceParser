@@ -3,7 +3,7 @@ using PdfParser.Presenter;
 using PdfParser.View;
 
 //string folderName = "Счета";
-string folderName = "Счета\\3";
+string folderName = "Счета\\1";
 string desktoPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 var folderPath = Path.Combine(desktoPath, folderName);
 
@@ -12,15 +12,15 @@ var files = fileReader.GetFile();
 
 if (files.Length > 0)
 {
-     ParseFiles(files);
+    ParseFiles(files);
 }
 else
 {
     Console.WriteLine("Нет файлов для распознавания");
 }
 
-Console.ReadKey();
 
+Console.ReadKey();
 
 
 void ParseFiles(FileInfo[] files)
@@ -31,9 +31,9 @@ void ParseFiles(FileInfo[] files)
 
         TesseractParser parser = new TesseractParser(file.FullName);
 
-        var parsedData = parser.ParseImage();
+        var parsedText = parser.ParseImage();
 
-        DataBuilder dataBuilder = new DataBuilder(parsedData);
+        DataBuilder dataBuilder = new DataBuilder(parsedText);
 
         IWriter consoleWriter = new ConsoleWriter(); // выводим в консоль
         consoleWriter.WriteData(dataBuilder.BuildResult());

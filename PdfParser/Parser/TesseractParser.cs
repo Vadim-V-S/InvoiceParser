@@ -1,4 +1,5 @@
-﻿using PdfParser.Extentions;
+﻿using PdfParser.Extensions;
+using PdfParser.ReferenceData;
 using System.Reflection;
 using Tesseract;
 
@@ -19,15 +20,14 @@ namespace PdfParser.Parser
         }
 
 
-        public List<string> ParseImage()
+        public string ParseImage()
         {
             var image = Pix.LoadFromFile(filePath);
             var page = engine.Process(image);
 
             var text = page.GetText();
-            //text = Regex.Replace(text, @"[^\w\(\s!@\#\$%\^&\*\(\)_\+=\-'\\:\|/`~\.,\{}\)]+", "");
-            var result = text.RemoveAllUnreadableChars();
-            return result.GetTextList();
+
+            return text;
         }
     }
 }

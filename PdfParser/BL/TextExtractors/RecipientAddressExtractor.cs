@@ -1,4 +1,4 @@
-﻿using PdfParser.Extentions;
+﻿using PdfParser.Extensions;
 using PdfParser.ReferenceData;
 
 namespace PdfParser.BL.TextExtractors
@@ -17,11 +17,11 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractText(List<string> keyWords)
         {
-            var slice = parsedData.SliceListBeforeWords(endSliceWords);
+            var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords);
             extraction.RemoveElementsFromListByWords(exclusions);
 
-            var result = parsedData.GetClosestElementToWord(usedValues[0], extraction);
+            var result = parsedData.GetClosestElementToWord(usedTokens[token.recipientName], extraction);
 
             return result;
         }
@@ -31,7 +31,8 @@ namespace PdfParser.BL.TextExtractors
         public override string GetResultValue()
         {
             var result= GetResultByIndex(new RecipientAddress(), comparator.GetIndexByTokenRatio, keyWords);
-            usedValues.Add(result);
+            usedTokens[token.recipientAddress] = result;  // запоминаем наш выбор в статическом списке
+
             return result;
         }
     }

@@ -1,4 +1,4 @@
-﻿using PdfParser.Extentions;
+﻿using PdfParser.Extensions;
 using PdfParser.ReferenceData;
 using static System.Net.Mime.MediaTypeNames;
 using System.Text.RegularExpressions;
@@ -18,7 +18,7 @@ namespace PdfParser.BL.TextExtractors
         {
             string paymentText = string.Empty;
 
-            string allText = String.Join(",", parsedData).ToLower(); // список превращаем в строку
+            string allText = String.Join(",", parsedData).ToUpper(); // список превращаем в строку
 
             foreach (var word in keyWords)
             {

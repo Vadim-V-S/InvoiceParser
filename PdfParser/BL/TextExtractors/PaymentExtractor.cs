@@ -1,4 +1,4 @@
-﻿using PdfParser.Extentions;
+﻿using PdfParser.Extensions;
 using PdfParser.ReferenceData;
 using PdfParser.ReferenceData.Interfaces;
 

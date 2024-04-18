@@ -16,7 +16,7 @@ namespace PdfParser.BL
         {
             foreach (var referenceValue in referenceData.GetReferenceWords())
             {
-                int newLevenshteinIndex = Fuzz.Ratio(referenceValue.ToLower(), currentValue.ToLower());
+                int newLevenshteinIndex = Fuzz.Ratio(referenceValue.ToUpper(), currentValue.ToUpper());
                 GetIndex(newLevenshteinIndex);
             }
             return levenshteinIndex;
@@ -26,7 +26,7 @@ namespace PdfParser.BL
         {
             foreach (var referenceValue in referenceData.GetReferenceWords())
             {
-                int newLevenshteinIndex = Fuzz.PartialRatio(referenceValue.ToLower(), currentValue.ToLower());
+                int newLevenshteinIndex = Fuzz.PartialRatio(referenceValue.ToUpper(), currentValue.ToUpper());
                 GetIndex(newLevenshteinIndex);
             }
             return levenshteinIndex;
@@ -36,7 +36,7 @@ namespace PdfParser.BL
         {
             foreach (var referenceValue in referenceData.GetReferenceWords())
             {
-                int newLevenshteinIndex = Fuzz.TokenSetRatio(referenceValue.ToLower(), currentValue.ToLower());
+                int newLevenshteinIndex = Fuzz.TokenSetRatio(referenceValue.ToUpper(), currentValue.ToUpper());
                 GetIndex(newLevenshteinIndex);
             }
             return levenshteinIndex;
@@ -44,7 +44,7 @@ namespace PdfParser.BL
 
         public string ExtractOne(string currentValue, List<string> values)
         {
-            string extractedValue = Process.ExtractOne(currentValue.ToLower(), values).Value;
+            string extractedValue = Process.ExtractOne(currentValue.ToUpper(), values).Value;
 
             return extractedValue;
         }

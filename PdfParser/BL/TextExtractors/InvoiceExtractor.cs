@@ -1,5 +1,5 @@
 ﻿using PdfParser.BL.TextExtractors.Interfaces;
-using PdfParser.Extentions;
+using PdfParser.Extensions;
 using PdfParser.ReferenceData;
 
 namespace PdfParser.BL.TextExtractors
@@ -19,6 +19,14 @@ namespace PdfParser.BL.TextExtractors
         {
             var extractions = parsedData.CreateListByKeyWords(keyWords);
             var result = extractions.CreateListByKeyWords(new List<string>() { " от " });
+
+            return result;
+        }
+
+        public override string GetResultValue()
+        {
+            var result = GetResultByIndex(new Invoice(), comparator.GetIndexByPartialRatio, keyWords);
+            usedTokens[token.invoice] = result;
 
             return result;
         }

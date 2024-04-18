@@ -1,6 +1,7 @@
 ﻿using PdfParser.BL.TextExtractors;
 using PdfParser.BL.TextExtractors.Interfaces;
-using PdfParser.Parser;
+using PdfParser.Extensions;
+using PdfParser.ReferenceData.Norm;
 
 namespace PdfParser.Presenter
 {
@@ -18,28 +19,48 @@ namespace PdfParser.Presenter
         ITextExtractor paymentExtractor;
         ITextExtractor currencyExtractor;
 
-        public DataBuilder(List<string> parsedData) // инициализируем поля экстракторов
+        public DataBuilder(string parsedText) // инициализируем поля экстракторов
         {
-                invoiceExtractor = new InvoiceExtractor(parsedData);
-                recipientInnExtractor = new RecipientInnExtractor(parsedData);
-                payerInnExtractor = new PayerInnExtractor(parsedData);
-                recipientNameExtractor = new RecipientNameExtractor(parsedData);
-                payerNameExtractor = new PayerNameExtractor(parsedData);
-                recipientAddressExtractor = new RecipientAddressExtractor(parsedData);
-                payerAddressExtractor = new PayerAddressExtractor(parsedData);
-                amountExtractor = new PaymentAmountExtractor(parsedData);
-                paymentExtractor = new PaymentExtractor(parsedData);
-                currencyExtractor = new CurrencyExtractor(parsedData);
+            var parsedData = GetParsedDataList(parsedText);
+
+            invoiceExtractor = new InvoiceExtractor(parsedData);
+            recipientInnExtractor = new RecipientInnExtractor(parsedData);
+            payerInnExtractor = new PayerInnExtractor(parsedData);
+            recipientNameExtractor = new RecipientNameExtractor(parsedData);
+            payerNameExtractor = new PayerNameExtractor(parsedData);
+            recipientAddressExtractor = new RecipientAddressExtractor(parsedData);
+            payerAddressExtractor = new PayerAddressExtractor(parsedData);
+            amountExtractor = new PaymentAmountExtractor(parsedData);
+            paymentExtractor = new PaymentExtractor(parsedData);
+            currencyExtractor = new CurrencyExtractor(parsedData);
         }
 
-        public InvoiceData BuildResult() 
+        private List<string> GetParsedDataList(string parsedText)
+        {
+            var text = parsedText.RemoveAllUnreadableChars();
+            var result = text;
+
+            List<Vocalbuary> vocalbuary = new List<Vocalbuary>
+            {
+                new Inn(),
+                new PropertyType()
+            };
+            foreach (var item in vocalbuary)
+            {
+                result = new string(item.NormalizeText(result));
+            }
+
+            return result.GetTextList();
+        }
+
+        public InvoiceData BuildResult()
         {
             // вызываем методы экстракторов с готовыми данными
-            var invoice = invoiceExtractor.GetResultValue(); 
-            var recipientInn = recipientInnExtractor.GetResultValue();
-            var payerInn = payerInnExtractor.GetResultValue();
+            var invoice = invoiceExtractor.GetResultValue();
             var recipientName = recipientNameExtractor.GetResultValue();
             var payerName = payerNameExtractor.GetResultValue();
+            var recipientInn = recipientInnExtractor.GetResultValue();
+            var payerInn = payerInnExtractor.GetResultValue();
             var recipientAddress = recipientAddressExtractor.GetResultValue();
             var payerAddress = payerAddressExtractor.GetResultValue();
             var paymentAmount = amountExtractor.GetResultValue();
