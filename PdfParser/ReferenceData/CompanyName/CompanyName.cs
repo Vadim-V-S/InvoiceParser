@@ -20,6 +20,7 @@ namespace PdfParser.ReferenceData.CompanyName
             keyWords.Add("ооо ");
             keyWords.Add("ао ");
             keyWords.Add("ип ");
+            keyWords.Add(": ");
         }
 
         public List<string> GetReferenceWords()

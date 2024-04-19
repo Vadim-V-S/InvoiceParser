@@ -15,12 +15,19 @@ namespace PdfParser.BL.TextExtractors
             comparator = new Comparator(new Currency());
         }
 
+        internal virtual List<string> ExtractData(List<string> keyWords)
+        {
+            var extraction = parsedData.CreateListByKeyWords(keyWords);
+
+            return extraction;
+        }
+
         public override string GetResultValue()
         {
             var extraction = ExtractData(keyWords);
 
             var result = GetResultByIndex(extraction, new Currency(), comparator.GetIndexByPartialRatio, keyWords);
-            result.RemoveAllStringBesidesKeyWord(keyWords); // удаляем все элементы списка за исключением справочных
+            result = result.RemoveAllStringBesidesKeyWord(keyWords); // удаляем все элементы списка за исключением справочных
 
             return result;
         }

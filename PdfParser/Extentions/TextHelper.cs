@@ -77,7 +77,7 @@ namespace PdfParser.Extensions
             foreach (var line in allText)
             {
                 //if (!line.Replace(" ","").Replace(",","").Replace(".","").Contains(token.Replace(" ", "").Replace(",", "").Replace(".", "")))
-                if (!line.Trim().Contains(token))
+                if (!line.Trim().Contains(token) && !token.Contains(line.Trim()))
                 {
                     result.Add(line);
                 }
@@ -155,6 +155,23 @@ namespace PdfParser.Extensions
             }
 
             return new List<string>() { "Нет данных!" };
+        }
+
+        public static string GetTextFromQuotes(this string text)
+        {
+            int count = 0;
+            foreach(var chr in text)
+            {
+                if(chr == '"') count++;
+            }
+
+            if (count == 2)
+            {
+                var item = text.Split('"');
+                return item[1].Trim();
+            }
+
+            return text;
         }
 
         public static bool DoesListContainWord(this List<string> allText, IEnumerable<string> words)

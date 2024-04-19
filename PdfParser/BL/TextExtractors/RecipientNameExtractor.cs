@@ -33,7 +33,9 @@ namespace PdfParser.BL.TextExtractors
             var extraction = ExtractData(keyWords);
 
             var result = GetResultByIndex(extraction, new RecipientName(), comparator.GetIndexByTokenRatio, keyWords);
-            usedTokens[token.recipientName] = result.Replace(" - Уровень доверия низкий!", "").Trim();  // запоминаем наш выбор в статическом списке
+
+            var valueToSave = result.GetTextFromQuotes();
+            usedTokens[token.recipientName] = valueToSave.Replace(" - Уровень доверия низкий!", "").Trim();  // запоминаем наш выбор в статическом списке
             
             return result;
         }

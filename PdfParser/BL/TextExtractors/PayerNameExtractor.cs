@@ -17,15 +17,18 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
+            //var extraction = parsedData.SliceListUpToWords(endSliceWords);
+            //extraction = extraction.SliceFollowingOfWords(keyWords);
+
             var slice = parsedData.SliceListByTwoWords(usedTokens[token.recipientName], endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords.Union(referenceData.GetReferenceWords()).ToList());
-            extraction.RemoveElementsFromListByWords(exclusions);
-            extraction.RemoveTheOnlyWordElementFromList();
+            extraction = extraction.RemoveElementsFromListByWords(exclusions);
+            extraction = extraction.RemoveTheOnlyWordElementFromList();
 
             if (usedTokens[token.recipientName] != "Нет данных!")
             {
-                extraction = extraction.RemoveElementsFromListByToken(usedTokens[token.recipientName]); // все тоже самое как и получателя, только дополнительно удаляем уже выбранного получателя платежа из списка
-                return analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
+                extraction = analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
+                return extraction.RemoveElementsFromListByToken(usedTokens[token.recipientName]); // все тоже самое как и получателя, только дополнительно удаляем уже выбранного получателя платежа из списка
             }
 
             return extraction;

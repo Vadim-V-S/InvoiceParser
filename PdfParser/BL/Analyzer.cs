@@ -1,7 +1,4 @@
-﻿using PdfParser.Extensions;
-using PdfParser.ReferenceData.Interfaces;
-
-namespace PdfParser.BL
+﻿namespace PdfParser.BL
 {
     public delegate int ComparatorIndexDelegate(string text); // делегаты ссылка на анализ по индексу
     public delegate string ComparatorExtractionDelegate(string text, List<string> values); // делегаты ссылка на анализ по извлечению
