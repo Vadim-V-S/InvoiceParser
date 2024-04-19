@@ -1,14 +1,14 @@
 ﻿using PdfParser.ReferenceData.Interfaces;
 
-namespace PdfParser.ReferenceData
+namespace PdfParser.ReferenceData.CompanyAddress
 {
-    public class PayerAddress : IReferenceData
+    public class CompanyAddress : IReferenceData
     {
-        List<string> companyAddress = new List<string>();
-        List<string> keyWords = new List<string>();
-        List<string> exclusions = new List<string>();
+        internal List<string> companyAddress = new List<string>();
+        internal List<string> keyWords = new List<string>();
+        internal List<string> exclusions = new List<string>();
 
-        public PayerAddress()
+        public CompanyAddress()
         {
             companyAddress.Add(",  обл. , г. , ул. , дом , квартира ");
             companyAddress.Add(",  область , город. , улица. , дом , квартира ");
@@ -21,29 +21,28 @@ namespace PdfParser.ReferenceData
 
             keyWords.Add("д. ");
             keyWords.Add("дом");
-            keyWords.Add("ул. ");
-            keyWords.Add("ул, ");
+            keyWords.Add("ул.");
+            keyWords.Add("ул,");
             keyWords.Add("улица");
             keyWords.Add("край");
             keyWords.Add("область");
+            keyWords.Add("обл.");
+            keyWords.Add("обл,");
             keyWords.Add("офис ");
-
-            exclusions.Add("поставщик");
-            exclusions.Add("исполнитель");
         }
 
         public List<string> GetReferenceWords()
         {
-            return companyAddress;
+            return companyAddress.ConvertAll(x => x.ToUpper());
         }
 
         public List<string> GetKeyWords()
         {
-            return keyWords;
+            return keyWords.ConvertAll(x => x.ToUpper());
         }
         public List<string> GetExclusions()
         {
-            return exclusions;
+            return exclusions.ConvertAll(x => x.ToUpper());
         }
     }
 }

@@ -34,12 +34,13 @@ void ParseFiles(FileInfo[] files)
         var parsedText = parser.ParseImage();
 
         DataBuilder dataBuilder = new DataBuilder(parsedText);
+        var result = dataBuilder.BuildResult();
 
         IWriter consoleWriter = new ConsoleWriter(); // выводим в консоль
-        consoleWriter.WriteData(dataBuilder.BuildResult());
+        consoleWriter.WriteData(result);
 
         IWriter jsonWriter = new JsonWriter(file.FullName);  // выводим в json
-        jsonWriter.WriteData(dataBuilder.BuildResult());
+        jsonWriter.WriteData(result);
     }
 
     Console.WriteLine("Готово >");

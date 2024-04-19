@@ -1,19 +1,19 @@
 ﻿namespace PdfParser.ReferenceData.Norm
 {
-    public class PropertyType : Vocalbuary
+    public class PropertyAttribute : InvoiceAttribute
     {
-        public PropertyType()
+        public PropertyAttribute()
         {
-            refWords.Add("\nАО ");
-            refWords.Add("\nООО ");
-            refWords.Add("\nИП ");
+            RefWords.Add("\nАО ");
+            RefWords.Add("\nООО ");
+            RefWords.Add("\nИП ");
         }
         public override List<string> GetVocalbuary()
         {
-            switch (targetWord)
+            switch (TargetWord)
             {
                 case "АО":
-                    return new List<string>()
+                    var ao = new List<string>()
                     {
                         "АО", //ru
                         "ao", //en
@@ -21,10 +21,12 @@
                         "аO",
                         "Акционерное общество",
                     };
+
+                    return ao.ConvertAll(x => x.ToUpper());
                     break;
 
                 case "ООО":
-                    return new List<string>()
+                    var ooo =  new List<string>()
                     {
                         "ООО", //ru
                         "ooo", //en
@@ -37,16 +39,21 @@
                         "Общество с ограниченной ответственностью",
                         "ограниченной ответственностью",
                     };
+
+                    return ooo.ConvertAll(x => x.ToUpper());
                     break;
                 case "ИП":
-                    return new List<string>()
+                    var ip= new List<string>()
                     {
                         "ИП",
                         "индивидуальный предприниматель",
                         "uП",
                     };
+
+                    return ip.ConvertAll(x => x.ToUpper());
                     break;
             }
+
             return new List<string>();
         }
     }

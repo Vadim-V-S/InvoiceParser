@@ -2,11 +2,10 @@
 
 namespace PdfParser.ReferenceData
 {
-    public class Currency : IReferenceData
+    public class Currency : Interfaces.IReferenceData
     {
         List<string> currency = new List<string>();
         List<string> keyWords = new List<string>();
-        List<string> exclusions = new List<string>();
 
         public Currency()
         {
@@ -29,15 +28,15 @@ namespace PdfParser.ReferenceData
 
         public List<string> GetReferenceWords()
         {
-            return currency;
+            return currency.ConvertAll(x => x.ToUpper());
         }
         public List<string> GetKeyWords()
         {
-            return keyWords;
+            return keyWords.ConvertAll(x => x.ToUpper());
         }
         public List<string> GetExclusions()
         {
-            return exclusions;
+            return new List<string>();
         }
     }
 }

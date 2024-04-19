@@ -2,11 +2,10 @@
 
 namespace PdfParser.ReferenceData
 {
-    public class Invoice: IReferenceData
+    public class Invoice: Interfaces.IReferenceData
     {
         List<string> invoice = new List<string>();
         List<string> keyWords = new List<string>();
-        List<string> exclusions = new List<string>();
 
         public Invoice()
         {
@@ -19,19 +18,21 @@ namespace PdfParser.ReferenceData
 
             keyWords.Add("счет");
             keyWords.Add("счёт");
+            keyWords.Add(" от ");
+            keyWords.Add(" № ");
         }
 
         public List<string> GetReferenceWords()
         {
-            return invoice;
+            return invoice.ConvertAll(x => x.ToUpper());
         }
         public List<string> GetKeyWords()
         {
-            return keyWords;
+            return keyWords.ConvertAll(x => x.ToUpper());
         }
         public List<string> GetExclusions()
         {
-            return exclusions;
+            return new List<string>();
         }
     }
 }

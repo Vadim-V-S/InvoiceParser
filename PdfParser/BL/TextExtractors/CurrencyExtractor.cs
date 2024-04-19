@@ -17,9 +17,10 @@ namespace PdfParser.BL.TextExtractors
 
         public override string GetResultValue()
         {
-            var result = GetResultByIndex(new Currency(), comparator.GetIndexByPartialRatio, keyWords);
+            var extraction = ExtractData(keyWords);
+
+            var result = GetResultByIndex(extraction, new Currency(), comparator.GetIndexByPartialRatio, keyWords);
             result.RemoveAllStringBesidesKeyWord(keyWords); // удаляем все элементы списка за исключением справочных
-            usedTokens = new Dictionary<string, string>();
 
             return result;
         }

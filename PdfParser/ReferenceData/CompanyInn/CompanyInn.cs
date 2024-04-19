@@ -2,11 +2,10 @@
 
 namespace PdfParser.ReferenceData.CompanyInn
 {
-    public class CompanyInn : IReferenceData
+    public class CompanyInn : Interfaces.IReferenceData
     {
         internal List<string> inn = new List<string>();
         internal List<string> keyWords = new List<string>();
-        internal List<string> exclusions = new List<string>();
         public CompanyInn()
         {
             inn.Add("ИНН ");
@@ -18,16 +17,16 @@ namespace PdfParser.ReferenceData.CompanyInn
 
         public List<string> GetReferenceWords()
         {
-            return inn;
+            return inn.ConvertAll(x=>x.ToUpper());
         }
 
         public List<string> GetKeyWords()
         {
-            return keyWords;
+            return keyWords.ConvertAll(x => x.ToUpper());
         }
         public List<string> GetExclusions()
         {
-            return exclusions;
+            return new List<string>();
         }
     }
 }

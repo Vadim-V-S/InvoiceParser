@@ -21,9 +21,10 @@ namespace PdfParser.Presenter
 
         public DataBuilder(string parsedText) // инициализируем поля экстракторов
         {
-            var parsedData = GetParsedDataList(parsedText);
+            Normalizator normalizator = new Normalizator();
+            var parsedData = normalizator.NormalizeText(parsedText);
 
-            invoiceExtractor = new InvoiceExtractor(parsedData);
+            invoiceExtractor = new InvoiceNumberExtractor(parsedData);
             recipientInnExtractor = new RecipientInnExtractor(parsedData);
             payerInnExtractor = new PayerInnExtractor(parsedData);
             recipientNameExtractor = new RecipientNameExtractor(parsedData);
@@ -33,24 +34,6 @@ namespace PdfParser.Presenter
             amountExtractor = new PaymentAmountExtractor(parsedData);
             paymentExtractor = new PaymentExtractor(parsedData);
             currencyExtractor = new CurrencyExtractor(parsedData);
-        }
-
-        private List<string> GetParsedDataList(string parsedText)
-        {
-            var text = parsedText.RemoveAllUnreadableChars();
-            var result = text;
-
-            List<Vocalbuary> vocalbuary = new List<Vocalbuary>
-            {
-                new Inn(),
-                new PropertyType()
-            };
-            foreach (var item in vocalbuary)
-            {
-                result = new string(item.NormalizeText(result));
-            }
-
-            return result.GetTextList();
         }
 
         public InvoiceData BuildResult()
@@ -66,7 +49,6 @@ namespace PdfParser.Presenter
             var paymentAmount = amountExtractor.GetResultValue();
             var paymentName = paymentExtractor.GetResultValue();
             var currency = currencyExtractor.GetResultValue();
-
 
             return new InvoiceData
             {

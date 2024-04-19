@@ -1,59 +1,15 @@
-﻿using PdfParser.ReferenceData.CompanyName;
-using PdfParser.ReferenceData.Interfaces;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace PdfParser.Extensions
 {
     public static class TextHelper
     {
-        // текст в список
-        public static List<string> GetTextList(this string allText)
-        {
-            string[] allTextArray;
-            List<string> parsedData = new List<string>();
-
-            allText = Regex.Replace(allText, " {2,}", " ");
-
-            allTextArray = allText.Split("\n");
-
-            foreach (string text in allTextArray)
-            {
-                if (text.Trim() != "")
-                {
-                    parsedData.Add(text);
-                }
-            };
-
-            IReferenceData recipientName = new RecipientName();
-            IReferenceData payerName = new PayerName();
-            var normalizeRecipient = parsedData.UnionSeparatedKeyWordsAndNextLine(recipientName.GetKeyWords());
-            var normalizedText = normalizeRecipient.UnionSeparatedKeyWordsAndNextLine(payerName.GetKeyWords());
-
-            return normalizedText;
-        }
-
-        public static string RemoveAllUnreadableChars(this string text)
-        {
-            List<char> chars = new List<char>()
-            {
-                //'!','@','#','$','%','^','&','*','(',')','_','+','=','-','\'','\\',':','|','/','`','~','.','{','}'
-                '@','#','^','&','*','_','+','=','-','\'','\\','|','`','~','{','}'
-            };
-            var result = text;
-            result = new string(result.Where(c => !chars.Contains(c)).ToArray());
-            //foreach (var chr in chars)
-            //{
-            //    result= text.Replace(chr, ' ');
-            //}
-            return result;
-        }
-
         // извлекаем следущее слово из строки от нужного. Это для инн
         public static string GetNextWordByReferenceText(this string allText, string referenceText)
         {
             string targetValue = string.Empty;
 
-            int startIndex = allText.ToUpper().IndexOf(referenceText.ToUpper());
+            int startIndex = allText.IndexOf(referenceText);
 
             if (startIndex >= 0)
             {
@@ -66,10 +22,8 @@ namespace PdfParser.Extensions
             {
                 return targetValue;
             }
-            else
-            {
-                return "Нет данных!";
-            }
+
+            return "Нет данных!";
         }
 
         // удаляем элементы списка по словам исключениям
@@ -77,7 +31,7 @@ namespace PdfParser.Extensions
         {
             foreach (string word in keyWords)
             {
-                var item = allText.FirstOrDefault(v => v.ToUpper().Replace(" ", "").Contains(word.ToUpper().Replace(" ", "")));
+                var item = allText.FirstOrDefault(v => v.Replace(" ", "").Contains(word.Replace(" ", "")));
 
                 if (item != null)
                     allText.Remove(item);
@@ -93,7 +47,7 @@ namespace PdfParser.Extensions
             foreach (string line in allText)
             {
                 foreach (var word in keyWords)
-                    if (line.Contains(word.ToUpper()))
+                    if (line.Contains(word))
                     {
                         result.Add(line);
                     }
@@ -111,8 +65,8 @@ namespace PdfParser.Extensions
                 {
                     result.Add(line.Trim());
                 }
-
             }
+
             return result;
         }
 
@@ -120,10 +74,10 @@ namespace PdfParser.Extensions
         public static List<string> RemoveElementsFromListByToken(this IEnumerable<string> allText, string token)
         {
             var result = new List<string>();
-            //result = allText.Where(k => !k.ToUpper().Contains(token.ToUpper())).ToList();
             foreach (var line in allText)
             {
-                if (!line.ToUpper().Contains(token.ToUpper()))
+                //if (!line.Replace(" ","").Replace(",","").Replace(".","").Contains(token.Replace(" ", "").Replace(",", "").Replace(".", "")))
+                if (!line.Trim().Contains(token))
                 {
                     result.Add(line);
                 }
@@ -131,101 +85,69 @@ namespace PdfParser.Extensions
 
             return result;
         }
-
-        public static Dictionary<string, int> SetWeightsByKeyWords(this List<string> allText, IEnumerable<string> keyWords)
-        {
-            Dictionary<string, int> weightsMatrix = new Dictionary<string, int>();
-            
-            foreach (var value in allText)
-            {
-                int weight = 0;
-                foreach (var keyWord in keyWords)
-                {
-                    if (value.ToUpper().Contains(keyWord.ToUpper()))
-                    {
-                        weight++;
-                    }
-                }
-                weightsMatrix.Add(value, weight);
-            }
-            return weightsMatrix;
-        }
-
-        public static List<string> GetMostHeavyElements(this Dictionary<string, int> weightsMatrix)
-        {
-            var result = new List<string>();
-            int maxWeight = weightsMatrix.Values.Max();
-
-            foreach (var keyvaluepair in weightsMatrix)
-            {
-                if (keyvaluepair.Value == maxWeight)
-                {
-                    //dict.Remove(keyvaluepair.Key);
-                    result.Add(keyvaluepair.Key);
-                }
-            }
-
-            return result;
-        }
-
-        //объединение строки с одиночным ключевым словом со следующей строкой
-        public static List<string> UnionSeparatedKeyWordsAndNextLine(this List<string> allText, IEnumerable<string> keyWords)
-        {
-            var result = new List<string>();
-
-            for (var i = 0; i < allText.Count; i++)
-            {
-                foreach (var word in keyWords)
-                {
-                    var currentLine = allText[i].Replace(":", "").Trim();
-                    if (currentLine.ToUpper().Contains(word.ToUpper()) && currentLine.Split(' ').Length == 1)
-                    {
-                        result.Add($"{currentLine}: {allText[i + 1]}");
-                    }
-                }
-                result.Add(allText[i]);
-            }
-
-            return result;
-        }
+     
 
         // это срезы
         public static List<string> SliceListUpToWords(this List<string> allText, IEnumerable<string> words)
         {
             foreach (var word in words)
             {
-                var endIndex = allText.IndexOf(allText.FirstOrDefault(v => v.ToUpper().Contains(word.ToUpper())));
+                var endIndex = allText.IndexOf(allText.FirstOrDefault(v => v.Contains(word)));
                 if (endIndex > 0)
                 {
                     return allText.GetRange(0, endIndex);
                 }
             }
+
             return new List<string>() { "Нет данных!" };
         }
 
-        public static List<string> SliceListByTwoWords(this List<string> allText, IEnumerable<string> startWords, IEnumerable<string> Endwords)
+        public static List<string> SliceFollowingOfWords(this List<string> allText, List<string> words)
         {
-            foreach (var startWord in startWords)
+            var endIndex = GetMinIndex(allText, words, 0) + 1;
+            if (endIndex > 0)
             {
-                var startIndex = allText.IndexOf(allText.FirstOrDefault(v => v.ToUpper().Contains(startWord.ToUpper())));
-                foreach (var endWord in Endwords)
+                return allText.GetRange(endIndex, allText.Count - endIndex);
+            }
+
+            return new List<string>() { "Нет данных!" };
+        }
+
+        //public static List<string> SliceListByTwoWords(this List<string> allText, List<string> startWords, List<string> endWords)
+        //{
+        //    var startIndex = GetMinIndex(allText, startWords, 0) + 1;
+        //    var endIndex = GetMinIndex(allText, endWords, startIndex) - 1;
+
+        //    if (endIndex > 0 && startIndex > 0 && endIndex > startIndex)
+        //    {
+        //        return allText.GetRange(startIndex, endIndex - startIndex);
+        //    }
+
+        //    return new List<string>() { "Нет данных!" };
+        //}
+
+        private static int GetMinIndex(List<string> allText, List<string> words, int refIndex)
+        {
+            int index = allText.Count - 1;
+
+            foreach (var word in words)
+            {
+                var currentIndex = allText.IndexOf(allText.FirstOrDefault(v => v.Contains(word)));
+
+                if (currentIndex < index && currentIndex >= 0 && currentIndex > refIndex)
                 {
-                    var endIndex = allText.IndexOf(allText.FirstOrDefault(v => v.ToUpper().Contains(endWord.ToUpper())));
-                    if (endIndex > 0 && startIndex > 0 && endIndex > startIndex)
-                    {
-                        return allText.GetRange(startIndex, endIndex - startIndex);
-                    }
+                    index = currentIndex;
                 }
             }
-            return new List<string>() { "Нет данных!" };
+            return index;
         }
 
         public static List<string> SliceListByTwoWords(this List<string> allText, string token, IEnumerable<string> Endwords)
         {
-            var startIndex = allText.IndexOf(allText.FirstOrDefault(v => v.ToUpper().Contains(token.ToUpper())));
+            var startIndex = allText.IndexOf(allText.FirstOrDefault(v => v.Contains(token)));
             foreach (var endWord in Endwords)
             {
-                var endIndex = allText.IndexOf(allText.FirstOrDefault(v => v.ToUpper().Contains(endWord.ToUpper())));
+                var endIndex = allText.IndexOf(allText.FirstOrDefault(v => v.Contains(endWord)));
                 if (endIndex > 0 && startIndex >= 0 && endIndex - startIndex > 4)
                 {
                     return allText.GetRange(startIndex, endIndex - startIndex);
@@ -233,6 +155,16 @@ namespace PdfParser.Extensions
             }
 
             return new List<string>() { "Нет данных!" };
+        }
+
+        public static bool DoesListContainWord(this List<string> allText, IEnumerable<string> words)
+        {
+            foreach (var word in words)
+            {
+                if (allText.Any(i => i.Contains(word)))
+                    return true;
+            }
+            return false;
         }
 
         // удаляем все элементы строки за исключением нужных
@@ -244,6 +176,7 @@ namespace PdfParser.Extensions
                 if (index != -1)
                     return line.Substring(index, word.Length);
             }
+
             return line;
         }
 
@@ -259,6 +192,7 @@ namespace PdfParser.Extensions
                     result += item + " ";
                 }
             }
+
             return result;
         }
 
@@ -279,7 +213,6 @@ namespace PdfParser.Extensions
 
             if (numbers.Count > 0)
                 return numbers.FirstOrDefault(i => i.Length >= len);
-            //return numbers.FirstOrDefault(i => i.Length == len);
 
             return text;
         }
@@ -334,22 +267,18 @@ namespace PdfParser.Extensions
             {
                 refValue = GetElementIndexFromListByPartialMatch(allText, word);
 
-                //var dif = Math.Abs(refValue - value);
                 var dif = refValue - value;
 
                 if (dif <= 2 && dif > 0)
                 {
-                    result.Add(word);
+                    result.Add(word.Trim());
                 }
             }
             if (result.Count > 0)
             {
                 return result;
             }
-            else
-            {
-                result.Add("");
-            }
+
             return result;
         }
 
@@ -359,11 +288,12 @@ namespace PdfParser.Extensions
         {
             for (int i = 0; i < allText.Count; i++)
             {
-                if (allText[i].ToUpper().Contains(text.ToUpper()))
+                if (allText[i].Contains(text))
                 {
                     return i;
                 };
             }
+
             return -1;
         }
     }

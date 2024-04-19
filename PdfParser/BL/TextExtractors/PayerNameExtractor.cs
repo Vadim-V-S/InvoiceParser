@@ -1,5 +1,4 @@
 ﻿using PdfParser.Extensions;
-using PdfParser.ReferenceData;
 using PdfParser.ReferenceData.CompanyName;
 
 namespace PdfParser.BL.TextExtractors
@@ -16,23 +15,17 @@ namespace PdfParser.BL.TextExtractors
             comparator = new Comparator(new PayerName());
         }
 
-        internal override List<string> ExtractText(List<string> keyWords)
+        internal override List<string> ExtractData(List<string> keyWords)
         {
             var slice = parsedData.SliceListByTwoWords(usedTokens[token.recipientName], endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords.Union(referenceData.GetReferenceWords()).ToList());
             extraction.RemoveElementsFromListByWords(exclusions);
             extraction.RemoveTheOnlyWordElementFromList();
+
             if (usedTokens[token.recipientName] != "Нет данных!")
-            {                
+            {
                 extraction = extraction.RemoveElementsFromListByToken(usedTokens[token.recipientName]); // все тоже самое как и получателя, только дополнительно удаляем уже выбранного получателя платежа из списка
-
-                var weghtsMatrix = extraction.SetWeightsByKeyWords(keyWords.Union(referenceData.GetReferenceWords()).ToList());
-
-                if (weghtsMatrix.Count > 0)
-                {
-                    extraction = weghtsMatrix.GetMostHeavyElements();
-
-                }
+                return analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
             }
 
             return extraction;
@@ -40,7 +33,9 @@ namespace PdfParser.BL.TextExtractors
 
         public override string GetResultValue()
         {
-            var result = GetResultByExtraction(new PayerName(), comparator.ExtractOne, comparator.GetIndexByTokenRatio, keyWords);
+            var extraction = ExtractData(keyWords);
+
+            var result = GetResultByExtraction(extraction, new PayerName(), comparator.ExtractOne, comparator.GetIndexByTokenRatio, keyWords);
             usedTokens[token.payerName] = result.Replace(" - Уровень доверия низкий!", "").Trim();  // запоминаем наш выбор в статическом списке
 
             return result;

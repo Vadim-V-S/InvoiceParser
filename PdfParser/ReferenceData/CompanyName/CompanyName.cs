@@ -2,7 +2,7 @@
 
 namespace PdfParser.ReferenceData.CompanyName
 {
-    public class CompanyName : IReferenceData
+    public class CompanyName : Interfaces.IReferenceData
     {
         internal List<string> companyName = new List<string>();
         internal List<string> keyWords = new List<string>();
@@ -24,15 +24,15 @@ namespace PdfParser.ReferenceData.CompanyName
 
         public List<string> GetReferenceWords()
         {
-            return companyName;
+            return companyName.ConvertAll(x => x.ToUpper());
         }
         public List<string> GetKeyWords()
         {
-            return keyWords;
+            return keyWords.ConvertAll(x => x.ToUpper());
         }
         public List<string> GetExclusions()
         {
-            return exclusions;
+            return exclusions.ConvertAll(x => x.ToUpper());
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using PdfParser.ReferenceData.Interfaces;
+﻿using PdfParser.Extensions;
+using PdfParser.ReferenceData.Interfaces;
 
 namespace PdfParser.BL
 {
@@ -42,13 +43,11 @@ namespace PdfParser.BL
                 var maxValue = amounts.Max();
                 return string.Format("{0:f2}", maxValue);
             }
-            else
-            {
-                return "Нет данных!";
-            }
+
+            return "Нет данных!";
         }
 
-        public List<string> ExtractTextByValue(IReferenceData targetField)
+        public List<string> ExtractTextByValue(ReferenceData.Interfaces.IReferenceData targetField)
         {
             List<string> values = new List<string>();
             foreach (var value in parsedData)
@@ -68,7 +67,7 @@ namespace PdfParser.BL
             return values;
         }
 
-        public string SearchTextByIndexValue(IReferenceData targetField)
+        public string SearchTextByIndexValue(ReferenceData.Interfaces.IReferenceData targetField)
         {
             Dictionary<string, int> valuesByWeghts = new Dictionary<string, int>();
 
@@ -98,20 +97,97 @@ namespace PdfParser.BL
             }
 
 
-            if (maxWeight < 25 && maxWeight >= 10)
+            if (maxWeight < 25)
             {
                 if (resultValue != "Нет данных!")
-                    result = resultValue + " - Уровень доверия низкий!";
+                    return resultValue + " - Уровень доверия низкий!";
                 //result = resultValue;
             }
-            else if (maxWeight < 10)
+            //else if (maxWeight < 10)
+            //{
+            //    result = "Нет данных!";
+            //    //result = "";
+            //}
+            //else
+            //{
+            return resultValue;
+            //}
+
+            //return result;
+        }
+
+        public List<string> ReturnElementsByHeaviestWeights(List<string> extraction, List<string> keyWords)
+        {
+            List<string> result = new List<string>();
+            var weghtsMatrix = SetWeightsByKeyWords(extraction, keyWords);
+
+            if (weghtsMatrix.Count > 0)
             {
-                result = "Нет данных!";
-                //result = "";
+                result = GetHeaviestElements(weghtsMatrix);
             }
-            else
+
+            return result;
+        }
+
+        public List<string> ReturnElementsByHeavyWeights(List<string> extraction, List<string> keyWords)
+        {
+            List<string> result = new List<string>();
+            var weghtsMatrix = SetWeightsByKeyWords(extraction, keyWords);
+
+            if (weghtsMatrix.Count > 0)
             {
-                result = valuesByWeghts.MaxBy(entry => entry.Value).Key;
+                result = RemoveWeakElements(weghtsMatrix);
+            }
+
+            return result;
+        }
+
+        public Dictionary<string, int> SetWeightsByKeyWords(List<string> allText, IEnumerable<string> keyWords)
+        {
+            Dictionary<string, int> weightsMatrix = new Dictionary<string, int>();
+
+            foreach (var value in allText)
+            {
+                int weight = 0;
+                foreach (var keyWord in keyWords)
+                {
+                    if (value.Contains(keyWord))
+                    {
+                        weight++;
+                    }
+                }
+                weightsMatrix.Add(value, weight);
+            }
+
+            return weightsMatrix;
+        }
+
+        public List<string> GetHeaviestElements(Dictionary<string, int> weightsMatrix)
+        {
+            var result = new List<string>();
+            int maxWeight = weightsMatrix.Values.Max();
+
+            foreach (var keyvaluepair in weightsMatrix)
+            {
+                if (keyvaluepair.Value == maxWeight)
+                {
+                    result.Add(keyvaluepair.Key);
+                }
+            }
+
+            return result;
+        }
+
+        public List<string> RemoveWeakElements(Dictionary<string, int> weightsMatrix)
+        {
+            var result = new List<string>();
+
+            foreach (var keyvaluepair in weightsMatrix)
+            {
+                if (keyvaluepair.Value > 1)
+                {
+                    result.Add(keyvaluepair.Key);
+                }
             }
 
             return result;

@@ -13,51 +13,37 @@ namespace PdfParser.BL.TextExtractors
             referenceData = new Payment();
             keyWords = referenceData.GetKeyWords();
             exclusions = referenceData.GetExclusions();
+
             startSliceWords = new List<string>()
             {
-                "оплата",
-                "сумма",
-                "цена"
+                "ОПЛАТА",
+                "СУММА",
+                "ЦЕНА",
+                "ТОВАРЫ"
             };
-
-            comparator = new Comparator(new Payment());
         }
 
-        internal override List<string> ExtractText(List<string> keyWords)
+        internal override List<string> ExtractData(List<string> keyWords)
         {
-            var extraction = parsedData.SliceListByTwoWords(startSliceWords, endSliceWords);
-            extraction.RemoveTheOnlyWordElementFromList(); // стандартно удаляем элементы с одним словом
+            var extraction = parsedData.SliceListUpToWords(endSliceWords);
+            extraction = extraction.SliceFollowingOfWords(startSliceWords);
+            if (extraction.DoesListContainWord(endSliceWords))
+            {
+                extraction = extraction.SliceListUpToWords(endSliceWords);
+            }
             extraction.RemoveElementsFromListByWords(exclusions); //  удаляем по справочнику исключений
 
-            return extraction;
+            return extraction.RemoveTheOnlyWordElementFromList(); // стандартно удаляем элементы с одним словом
         }
 
-        internal override string GetResultByIndex(IReferenceData referenceData, ComparatorIndexDelegate indexHandler, List<string> extractedText)
-        {
-            var analyzer = new Analyzer(extractedText, indexHandler);
-
-            var result = analyzer.SearchTextByIndexValue(referenceData);
-
-            if (result.Trim() != "")
-                return result;
-            else
-                return "Нет данных!";
-        }
-
-        // Назначений платежа может быть несколько поэтому получаем их в цикле
         public override string GetResultValue()
         {
             var result = string.Empty;
-            var extractedText = ExtractText(keyWords);
-            var tempList = new List<string>(extractedText);
-            foreach (var item in extractedText)
-            {
-                var paymentItem = GetResultByIndex(new Payment(), comparator.GetIndexByPartialRatio, tempList);
-                tempList.RemoveElementsFromListByWords(new List<string>() { item }); // при каждой итерации удаляем, то что уже нашли
+            var extraction = ExtractData(keyWords);
 
-                if (paymentItem.Length > 10)
-                    //result += item + "\n";
-                    result += paymentItem + "\n";
+            foreach (var item in extraction)
+            {
+                result += item + "\n";
             }
             return result;
         }

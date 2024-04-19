@@ -2,7 +2,7 @@
 
 namespace PdfParser.ReferenceData
 {
-    public class Payment : IReferenceData
+    public class Payment : Interfaces.IReferenceData
     {
         List<string> paymentName = new List<string>();
         List<string> keyWords = new List<string>();
@@ -35,15 +35,15 @@ namespace PdfParser.ReferenceData
 
         public List<string> GetReferenceWords()
         {
-            return paymentName;
+            return paymentName.ConvertAll(x => x.ToUpper());
         }
         public List<string> GetKeyWords()
         {
-            return keyWords;
+            return keyWords.ConvertAll(x => x.ToUpper());
         }
         public List<string> GetExclusions()
         {
-            return exclusions;
+            return exclusions.ConvertAll(x => x.ToUpper());
         }
     }
 }

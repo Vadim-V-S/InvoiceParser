@@ -1,7 +1,5 @@
 ﻿using PdfParser.Extensions;
 using PdfParser.ReferenceData;
-using static System.Net.Mime.MediaTypeNames;
-using System.Text.RegularExpressions;
 
 namespace PdfParser.BL.TextExtractors
 {
@@ -37,6 +35,7 @@ namespace PdfParser.BL.TextExtractors
                     return result;
                 }
             }
+
             return new List<string>();
         }
 

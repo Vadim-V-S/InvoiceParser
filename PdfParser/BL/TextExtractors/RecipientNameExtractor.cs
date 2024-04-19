@@ -14,28 +14,25 @@ namespace PdfParser.BL.TextExtractors
 
             comparator = new Comparator(new RecipientName());
         }
-        internal override List<string> ExtractText(List<string> keyWords)
+        internal override List<string> ExtractData(List<string> keyWords)
         {
+            List<string> result = new List<string>();
+
             var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords); // выборка по ключевым словам
             extraction.RemoveElementsFromListByWords(exclusions);      // удаление лишнего по словам исключениям
-            var result = extraction.RemoveTheOnlyWordElementFromList();  // удаление элементов состоящщих из одного слова
-
-            var weghtsMatrix = result.SetWeightsByKeyWords(keyWords.Union(referenceData.GetReferenceWords()).ToList());
-
-            if (weghtsMatrix.Count > 0)
-            {
-                result = weghtsMatrix.GetMostHeavyElements();
-            }
-
+            extraction = extraction.RemoveTheOnlyWordElementFromList();  // удаление элементов состоящщих из одного слова
+            
+            result = analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
 
             return result;
         }
 
         public override string GetResultValue()
         {
-            //var result = GetResultByExtraction(new RecipientName(), comparator.ExtractOne, comparator.GetIndexByTokenRatio, keyWords);
-            var result = GetResultByIndex(new RecipientName(), comparator.GetIndexByTokenRatio, keyWords);
+            var extraction = ExtractData(keyWords);
+
+            var result = GetResultByIndex(extraction, new RecipientName(), comparator.GetIndexByTokenRatio, keyWords);
             usedTokens[token.recipientName] = result.Replace(" - Уровень доверия низкий!", "").Trim();  // запоминаем наш выбор в статическом списке
             
             return result;

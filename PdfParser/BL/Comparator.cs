@@ -6,8 +6,8 @@ namespace PdfParser.BL
     public class Comparator
     {
         int levenshteinIndex = 0;
-        IReferenceData referenceData;
-        public Comparator(IReferenceData referenceData)
+        ReferenceData.Interfaces.IReferenceData referenceData;
+        public Comparator(ReferenceData.Interfaces.IReferenceData referenceData)
         {
             this.referenceData = referenceData;
         }

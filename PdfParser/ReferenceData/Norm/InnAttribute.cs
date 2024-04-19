@@ -1,14 +1,14 @@
 ﻿namespace PdfParser.ReferenceData.Norm
 {
-    public class Inn : Vocalbuary
+    public class InnAttribute : InvoiceAttribute
     {
-        public Inn()
+        public InnAttribute()
         {
-            refWords.Add("\nИНН ");
+            RefWords.Add("\nИНН ");
         }
         public override List<string> GetVocalbuary()
         {
-            return new List<string>()
+            var inn = new List<string>()
             {
                 "ИНН", //ru
                 "ИНН /КПП", //ru
@@ -31,6 +31,8 @@
                 "hhh",
                 "ННН",
             };
+
+            return inn.ConvertAll(x => x.ToUpper());
         }
     }
 }

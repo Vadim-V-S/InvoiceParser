@@ -15,7 +15,7 @@ namespace PdfParser.BL.TextExtractors
             comparator = new Comparator(new RecipientInn());
         }
 
-        internal override List<string> ExtractText(List<string> keyWords)
+        internal override List<string> ExtractData(List<string> keyWords)
         {
             var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords);
@@ -27,10 +27,12 @@ namespace PdfParser.BL.TextExtractors
 
         public override string GetResultValue()
         {
-            var inn = GetResultByIndex(new RecipientInn(), comparator.GetIndexByPartialRatio, keyWords);
+            var extraction = ExtractData(keyWords);
 
-            inn = inn.GetNextWordByReferenceText("ИНН ").Replace(",", "").Trim();
+            var inn = GetResultByIndex(extraction, new RecipientInn(), comparator.GetIndexByPartialRatio, keyWords);
+            inn = inn.GetNextWordByReferenceText("ИНН ");
             inn = inn.GetNumberFromStringByLength(10);
+
             var result = "Нет Данных!";
             //if (inn != null && inn.Length == 10 && inn.IsStringDigits())
             if (inn != null && inn.Length >= 10 && inn.IsStringDigits())

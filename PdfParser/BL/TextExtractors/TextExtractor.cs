@@ -8,7 +8,7 @@ namespace PdfParser.BL.TextExtractors
     // родительский класс с базовой реализацией
     public class TextExtractor : ITextExtractor
     {
-        internal IReferenceData referenceData;
+        internal ReferenceData.Interfaces.IReferenceData referenceData;
         internal Comparator comparator;
         internal ComparatorIndexDelegate indexHandler; // объект делагата (ссылки) на метод анализа Comparator по индексу
         internal ComparatorExtractionDelegate extractionHandler; // объект делагата (ссылки) на метод анализа Comparator по извлечению
@@ -16,31 +16,33 @@ namespace PdfParser.BL.TextExtractors
         internal List<string> keyWords; // справочник ключевых слов для выборки из распасенных данных
         internal List<string> exclusions; // справочник ключевых слов для исключения элементов списка из выборки
         internal List<string> endSliceWords = new List<string>();
-        internal static Dictionary<string, string> usedTokens; // список для уже использованных выбранных значений. Используется только для получения наименований компаний
+        internal static Dictionary<string, string> usedTokens = new Dictionary<string, string>(); // список для уже использованных выбранных значений. Используется только для получения наименований компаний
         internal Token token = new Token();
+        internal Analyzer analyzer;
 
         public TextExtractor(List<string> parsedData) //инициализация
         {
             this.parsedData = parsedData;
             keyWords = new List<string>();
 
-            usedTokens = new Dictionary<string, string>();
-            //usedToken = string.Empty;
+            //usedTokens = /*new Dictionary<string, string>();*/
 
             endSliceWords = new List<string>()
             {
-                "назначение",
-                "всего",
-                "итого"
+                "НАЗНАЧЕНИЕ",
+                "ВСЕГО",
+                "ИТОГО"
             };
+
+            analyzer = new Analyzer();
         }
 
         //Выборка данных по извлечению
-        internal string GetResultByExtraction(IReferenceData referenceData, ComparatorExtractionDelegate extractionDelegate, ComparatorIndexDelegate indexHandler, List<string> words)
+        internal string GetResultByExtraction(List<string> extraction, ReferenceData.Interfaces.IReferenceData referenceData, ComparatorExtractionDelegate extractionDelegate, ComparatorIndexDelegate indexHandler, List<string> words)
         {
-            var targetWords = ExtractText(words);
+            //var targetWords = ExtractData(words);
 
-            var analyzer = new Analyzer(targetWords, extractionDelegate);
+            analyzer = new Analyzer(extraction, extractionDelegate);
             var resultWords = analyzer.ExtractTextByValue(referenceData);
 
             analyzer = new Analyzer(resultWords, indexHandler);
@@ -53,22 +55,22 @@ namespace PdfParser.BL.TextExtractors
         }
 
         //Выборка данных по анализу индекса
-        internal virtual string GetResultByIndex(IReferenceData referenceData, ComparatorIndexDelegate indexHandler, List<string> words)
+        internal virtual string GetResultByIndex(List<string> extraction, ReferenceData.Interfaces.IReferenceData referenceData, ComparatorIndexDelegate indexHandler, List<string> words)
         {
-            var targetWords = ExtractText(words);
+            var analyzer = new Analyzer(extraction, indexHandler);
 
-            var analyzer = new Analyzer(targetWords, indexHandler);
+            var result = analyzer.SearchTextByIndexValue(referenceData).Replace(",", "").Trim();
 
-            var result = analyzer.SearchTextByIndexValue(referenceData);
-
-            if (result.Trim() != "")
+            if (result != "")
+            {
                 return result;
-            else
-                return "Нет данных!";
+            }
+
+            return "Нет данных!";
         }
 
         //Первоначальная выборка данных из парсинга по ключевым словам
-        internal virtual List<string> ExtractText(List<string> keyWords)
+        internal virtual List<string> ExtractData(List<string> keyWords)
         {
             var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords);
@@ -78,7 +80,8 @@ namespace PdfParser.BL.TextExtractors
 
         public virtual string GetResultValue() //Стартовый основной метод получения готового результата
         {
-            var result = GetResultByIndex(new Invoice(), comparator.GetIndexByPartialRatio, keyWords);
+            var extraction = ExtractData(keyWords);
+            var result = GetResultByIndex(extraction, new Invoice(), comparator.GetIndexByPartialRatio, keyWords);
 
             return result;
         }
