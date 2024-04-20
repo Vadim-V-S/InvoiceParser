@@ -26,7 +26,7 @@ namespace PdfParser.BL.TextExtractors
         internal override List<string> ExtractData(List<string> keyWords)
         {
             //var slice = parsedData.SliceListUpToWords(endSliceWords);
-            var slice = parsedData.SliceListUpToWordsTest(endSliceWords);
+            var slice = parsedData.SliceListUpToWordsInRecursion(endSliceWords);
             var extraction = slice.SliceFollowingOfWords(startSliceWords);
             //if (extraction.DoesListContainWord(endSliceWords))
             //{

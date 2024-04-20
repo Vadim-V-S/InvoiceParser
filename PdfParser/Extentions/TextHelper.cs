@@ -56,19 +56,19 @@ namespace PdfParser.Extensions
         }
 
         // удаляем элементы списка состоящие из одного слова
-        public static List<string> RemoveTheOnlyWordElementFromList(this IEnumerable<string> allText)
-        {
-            var result = new List<string>();
-            foreach (string line in allText)
-            {
-                if (line.Trim().Split(' ').Length != 1)
-                {
-                    result.Add(line.Trim());
-                }
-            }
+        //public static List<string> RemoveTheOnlyWordElementFromList(this IEnumerable<string> allText)
+        //{
+        //    var result = new List<string>();
+        //    foreach (string line in allText)
+        //    {
+        //        if (line.Trim().Split(' ').Length != 1)
+        //        {
+        //            result.Add(line.Trim());
+        //        }
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         // удаляем элементы списка содержащие слова
         public static List<string> RemoveElementsFromListByToken(this IEnumerable<string> allText, string token)
@@ -105,7 +105,7 @@ namespace PdfParser.Extensions
             return new List<string>() { "Нет данных!" };
         }
 
-        public static List<string> SliceListUpToWordsTest(this List<string> allText, IEnumerable<string> words)
+        public static List<string> SliceListUpToWordsInRecursion(this List<string> allText, IEnumerable<string> words)
         {
             var result = new List<string>();
             result = allText;
@@ -115,7 +115,7 @@ namespace PdfParser.Extensions
                 var endIndex = result.IndexOf(result.FirstOrDefault(v => v.Contains(word)));
                 if (endIndex > 0)
                 {
-                    result = result.GetRange(0, endIndex).SliceListUpToWordsTest(words);
+                    result = result.GetRange(0, endIndex).SliceListUpToWordsInRecursion(words);
                 }
             }
 
@@ -293,31 +293,31 @@ namespace PdfParser.Extensions
         }
 
 
-        // выбираем наиболее близкий текст (адрес) к требуемому.
-        public static List<string> GetClosestElementToWord(this List<string> allText, string WordToCompare, IEnumerable<string> refWords)
-        {
-            var result = new List<string>();
-            var refValue = 0;
-            var value = GetElementIndexFromListByPartialMatch(allText, WordToCompare);
+        //// выбираем наиболее близкий текст (адрес) к требуемому.
+        //public static List<string> GetClosestElementToWord(this List<string> allText, string WordToCompare, IEnumerable<string> refWords)
+        //{
+        //    var result = new List<string>();
+        //    var refValue = 0;
+        //    var value = GetElementIndexFromListByPartialMatch(allText, WordToCompare);
 
-            foreach (var word in refWords)
-            {
-                refValue = GetElementIndexFromListByPartialMatch(allText, word);
+        //    foreach (var word in refWords)
+        //    {
+        //        refValue = GetElementIndexFromListByPartialMatch(allText, word);
 
-                var dif = refValue - value;
+        //        var dif = refValue - value;
 
-                if (dif <= 2 && dif > 0)
-                {
-                    result.Add(word.Trim());
-                }
-            }
-            if (result.Count > 0)
-            {
-                return result;
-            }
+        //        if (dif <= 2 && dif > 0)
+        //        {
+        //            result.Add(word.Trim());
+        //        }
+        //    }
+        //    if (result.Count > 0)
+        //    {
+        //        return result;
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         public static string ReturnNextItemWhenContainsKeyWord(this List<string> allText, List<string> refWords, string keyWord)
         {

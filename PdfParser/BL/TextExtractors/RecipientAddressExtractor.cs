@@ -21,9 +21,7 @@ namespace PdfParser.BL.TextExtractors
             var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords);
             extraction = extraction.RemoveElementsFromListByWords(exclusions);
-            //extraction = extraction.RemoveTheOnlyWordElementFromList();
 
-            //extraction = parsedData.GetClosestElementToWord(usedTokens[token.recipientName], extraction);
             return new List<string>() { parsedData.ReturnNextItemWhenContainsKeyWord(extraction, usedTokens[token.recipientName]) };
             //return extraction;
         }
