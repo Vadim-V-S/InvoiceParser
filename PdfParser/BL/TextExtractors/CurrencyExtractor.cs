@@ -5,7 +5,7 @@ using PdfParser.ReferenceData;
 namespace PdfParser.BL.TextExtractors
 {
     // валюта
-    public class CurrencyExtractor:TextExtractor, ITextExtractor
+    public class CurrencyExtractor : TextExtractor, ITextExtractor
     {
         public CurrencyExtractor(List<string> parsedData) : base(parsedData)
         {
@@ -17,18 +17,21 @@ namespace PdfParser.BL.TextExtractors
 
         internal virtual List<string> ExtractData(List<string> keyWords)
         {
-            var extraction = parsedData.CreateListByKeyWords(keyWords);
+            var slice = parsedData.CreateListByKeyWords(keyWords);
 
-            return extraction;
+            return slice;
         }
 
         public override string GetResultValue()
         {
             var extraction = ExtractData(keyWords);
 
-            var result = GetResultByIndex(extraction, new Currency(), comparator.GetIndexByPartialRatio, keyWords);
-            result = result.RemoveAllStringBesidesKeyWord(keyWords); // удаляем все элементы списка за исключением справочных
-
+            var result = "Нет Данных!";
+            if (extraction.Count != 0)
+            {
+                result = GetResultByIndex(extraction, new Currency(), comparator.GetIndexByPartialRatio, keyWords);
+                result = result.RemoveAllStringBesidesKeyWord(keyWords); // удаляем все элементы списка за исключением справочных
+            }
             return result;
         }
     }

@@ -1,7 +1,7 @@
-﻿using PdfParser.BL.TextExtractors;
+﻿using PdfParser.BL.Normalizator;
+using PdfParser.BL.TextExtractors;
 using PdfParser.BL.TextExtractors.Interfaces;
 using PdfParser.Extensions;
-using PdfParser.ReferenceData.Norm;
 
 namespace PdfParser.Presenter
 {

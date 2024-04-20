@@ -23,7 +23,7 @@ namespace PdfParser.BL.TextExtractors
             var slice = parsedData.SliceListByTwoWords(usedTokens[token.recipientName], endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords.Union(referenceData.GetReferenceWords()).ToList());
             extraction = extraction.RemoveElementsFromListByWords(exclusions);
-            extraction = extraction.RemoveTheOnlyWordElementFromList();
+            //extraction = extraction.RemoveTheOnlyWordElementFromList();
 
             if (usedTokens[token.recipientName] != "Нет данных!")
             {
@@ -38,7 +38,11 @@ namespace PdfParser.BL.TextExtractors
         {
             var extraction = ExtractData(keyWords);
 
-            var result = GetResultByExtraction(extraction, new PayerName(), comparator.ExtractOne, comparator.GetIndexByTokenRatio, keyWords);
+            var result = "Нет Данных!";
+            if (extraction.Count != 0)
+            {
+                result = GetResultByExtraction(extraction, new PayerName(), comparator.ExtractOne, comparator.GetIndexByTokenRatio, keyWords);
+            }
             usedTokens[token.payerName] = result.Replace(" - Уровень доверия низкий!", "").Trim();  // запоминаем наш выбор в статическом списке
 
             return result;

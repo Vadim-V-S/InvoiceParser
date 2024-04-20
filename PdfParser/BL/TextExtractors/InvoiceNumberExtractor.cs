@@ -18,8 +18,8 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var extractions = parsedData.CreateListByKeyWords(keyWords);
-            var result = analyzer.ReturnElementsByHeaviestWeights(extractions, keyWords);
+            var slice = parsedData.CreateListByKeyWords(keyWords);
+            var result = analyzer.ReturnElementsByHeaviestWeights(slice, keyWords);
 
             return result;
         }
@@ -28,7 +28,11 @@ namespace PdfParser.BL.TextExtractors
         {
             var extraction = ExtractData(keyWords);
 
-            var result = GetResultByIndex(extraction, new Invoice(), comparator.GetIndexByPartialRatio, keyWords);
+            var result = "Нет Данных!";
+            if (extraction.Count != 0)
+            {
+                result = GetResultByIndex(extraction, new Invoice(), comparator.GetIndexByPartialRatio, keyWords);
+            }
             usedTokens[token.invoice] = result;
 
             return result;

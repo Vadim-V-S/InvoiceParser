@@ -2,9 +2,8 @@
 using PdfParser.ReferenceData.CompanyName;
 using PdfParser.ReferenceData.Interfaces;
 using System.Text.RegularExpressions;
-using System.Xml;
 
-namespace PdfParser.ReferenceData.Norm
+namespace PdfParser.BL.Normalizator
 {
     public class Normalizator
     {
@@ -38,7 +37,7 @@ namespace PdfParser.ReferenceData.Norm
 
         private string NormalizeQuotesAndSpaces(string text)
         {
-            var result= text.Replace("«", "\"").Replace("»", "\"");
+            var result = text.Replace("«", "\"").Replace("»", "\"");
             result = Regex.Replace(result, " {2,}", " ");
 
             return result;
@@ -86,7 +85,7 @@ namespace PdfParser.ReferenceData.Norm
         private List<string> GetParsedList(string parsedText)
         {
             string[] textArray;
-            List<string> parsedList = new List<string>();
+            HashSet<string> parsedList = new HashSet<string>();
 
             textArray = parsedText.Split("\n");
 
@@ -98,13 +97,13 @@ namespace PdfParser.ReferenceData.Norm
                 }
             };
 
-            return parsedList;
+            return parsedList.ToList();
         }
 
         private List<string> NormalizeKeyWords(List<string> parsedList)
         {
-            Interfaces.IReferenceData recipientName = new RecipientName();
-            Interfaces.IReferenceData payerName = new PayerName();
+            IReferenceData recipientName = new RecipientName();
+            IReferenceData payerName = new PayerName();
 
             var normalizeRecipient = UnionSeparatedKeyWordsAndNextLine(parsedList, recipientName.GetKeyWords());
             var normalizedText = UnionSeparatedKeyWordsAndNextLine(normalizeRecipient, payerName.GetKeyWords());
@@ -119,15 +118,19 @@ namespace PdfParser.ReferenceData.Norm
 
             for (var i = 0; i < allText.Count; i++)
             {
+                var currentLine = allText[i].Replace(":", "").Trim();
+
                 foreach (var word in keyWords)
                 {
-                    var currentLine = allText[i].Replace(":", "").Trim();
-                    if (currentLine.ToUpper().Contains(word.ToUpper()) && currentLine.Split(' ').Length == 1)
+                    if (currentLine.Contains(word.ToUpper()) && currentLine.Split(' ').Length == 1)
                     {
                         result.Add($"{currentLine}: {allText[i + 1]}");
                     }
                 }
-                result.Add(allText[i]);
+                if (currentLine.Split(' ').Length != 1)
+                {
+                    result.Add(allText[i]);
+                }
             }
 
             return result;

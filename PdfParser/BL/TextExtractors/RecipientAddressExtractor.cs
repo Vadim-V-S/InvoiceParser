@@ -21,10 +21,11 @@ namespace PdfParser.BL.TextExtractors
             var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords);
             extraction = extraction.RemoveElementsFromListByWords(exclusions);
-            //extraction = analyzer.ReturnElementsByHeavyWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
+            //extraction = extraction.RemoveTheOnlyWordElementFromList();
 
-            extraction = parsedData.GetClosestElementToWord(usedTokens[token.recipientName], extraction);
-            return extraction;
+            //extraction = parsedData.GetClosestElementToWord(usedTokens[token.recipientName], extraction);
+            return new List<string>() { parsedData.ReturnNextItemWhenContainsKeyWord(extraction, usedTokens[token.recipientName]) };
+            //return extraction;
         }
 
         // GetResultByIndex ипользуем базовую логику
@@ -33,7 +34,11 @@ namespace PdfParser.BL.TextExtractors
         {
             var extraction = ExtractData(keyWords);
 
-            var result = GetResultByIndex(extraction, new RecipientAddress(), comparator.GetIndexByTokenRatio, keyWords);
+            var result = "Нет Данных!";
+            if (extraction.Count != 0)
+            {
+                result = GetResultByIndex(extraction, new RecipientAddress(), comparator.GetIndexByTokenRatio, keyWords);
+            }
             usedTokens[token.recipientAddress] = result;  // запоминаем наш выбор в статическом списке
 
             return result;

@@ -19,7 +19,7 @@ namespace PdfParser.BL.TextExtractors
         {
             var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords);
-            extraction = extraction.RemoveTheOnlyWordElementFromList();
+            //extraction = extraction.RemoveTheOnlyWordElementFromList();
             extraction = extraction.RemoveListElementsWithoutDigits();
 
             if (usedTokens[token.recipientInn] != "Нет данных!")
@@ -41,8 +41,7 @@ namespace PdfParser.BL.TextExtractors
             inn = inn.GetNumberFromStringByLength(10);
 
             var result = "Нет Данных!";
-            //if (inn != null && inn.Length == 10 && inn.IsStringDigits())
-            if (inn != null && inn.Length >= 10 && inn.IsStringDigits())
+            if (inn != null && inn.Length >= 10 && inn.Length <= 12 && inn.IsStringDigits())
             {
                 return usedTokens[token.payerInn] = inn;
             }

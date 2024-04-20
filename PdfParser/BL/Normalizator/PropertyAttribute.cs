@@ -1,4 +1,4 @@
-﻿namespace PdfParser.ReferenceData.Norm
+﻿namespace PdfParser.BL.Normalizator
 {
     public class PropertyAttribute : InvoiceAttribute
     {
@@ -26,7 +26,7 @@
                     break;
 
                 case "ООО":
-                    var ooo =  new List<string>()
+                    var ooo = new List<string>()
                     {
                         "ООО", //ru
                         "ooo", //en
@@ -43,7 +43,7 @@
                     return ooo.ConvertAll(x => x.ToUpper());
                     break;
                 case "ИП":
-                    var ip= new List<string>()
+                    var ip = new List<string>()
                     {
                         "ИП",
                         "индивидуальный предприниматель",

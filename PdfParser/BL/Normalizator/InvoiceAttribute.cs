@@ -1,4 +1,4 @@
-﻿namespace PdfParser.ReferenceData.Norm
+﻿namespace PdfParser.BL.Normalizator
 {
     public abstract class InvoiceAttribute
     {

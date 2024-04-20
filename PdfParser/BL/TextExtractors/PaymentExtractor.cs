@@ -25,15 +25,16 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var extraction = parsedData.SliceListUpToWords(endSliceWords);
-            extraction = extraction.SliceFollowingOfWords(startSliceWords);
-            if (extraction.DoesListContainWord(endSliceWords))
-            {
-                extraction = extraction.SliceListUpToWords(endSliceWords);
-            }
-            extraction.RemoveElementsFromListByWords(exclusions); //  удаляем по справочнику исключений
+            //var slice = parsedData.SliceListUpToWords(endSliceWords);
+            var slice = parsedData.SliceListUpToWordsTest(endSliceWords);
+            var extraction = slice.SliceFollowingOfWords(startSliceWords);
+            //if (extraction.DoesListContainWord(endSliceWords))
+            //{
+            //    extraction = extraction.SliceListUpToWords(endSliceWords);
+            //}
+            return extraction.RemoveElementsFromListByWords(exclusions); //  удаляем по справочнику исключений
 
-            return extraction.RemoveTheOnlyWordElementFromList(); // стандартно удаляем элементы с одним словом
+            //return extraction.RemoveTheOnlyWordElementFromList(); // стандартно удаляем элементы с одним словом
         }
 
         public override string GetResultValue()

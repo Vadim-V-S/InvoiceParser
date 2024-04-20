@@ -16,14 +16,12 @@ namespace PdfParser.BL.TextExtractors
         }
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            List<string> result = new List<string>();
-
             var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords); // выборка по ключевым словам
-            extraction.RemoveElementsFromListByWords(exclusions);      // удаление лишнего по словам исключениям
-            extraction = extraction.RemoveTheOnlyWordElementFromList();  // удаление элементов состоящщих из одного слова
-            
-            result = analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
+            extraction = extraction.RemoveElementsFromListByWords(exclusions);      // удаление лишнего по словам исключениям
+            //extraction = extraction.RemoveTheOnlyWordElementFromList();  // удаление элементов состоящщих из одного слова
+
+            var result = analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
 
             return result;
         }
@@ -32,11 +30,14 @@ namespace PdfParser.BL.TextExtractors
         {
             var extraction = ExtractData(keyWords);
 
-            var result = GetResultByIndex(extraction, new RecipientName(), comparator.GetIndexByTokenRatio, keyWords);
-
+            var result = "Нет Данных!";
+            if (extraction.Count != 0)
+            {
+                result = GetResultByIndex(extraction, new RecipientName(), comparator.GetIndexByTokenRatio, keyWords);
+            }
             var valueToSave = result.GetTextFromQuotes();
             usedTokens[token.recipientName] = valueToSave.Replace(" - Уровень доверия низкий!", "").Trim();  // запоминаем наш выбор в статическом списке
-            
+
             return result;
         }
     }

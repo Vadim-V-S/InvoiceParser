@@ -74,10 +74,13 @@ namespace PdfParser.Extensions
         public static List<string> RemoveElementsFromListByToken(this IEnumerable<string> allText, string token)
         {
             var result = new List<string>();
+            token = token.Replace(" ", "").Replace(",", "").Replace(".", "");
+
             foreach (var line in allText)
             {
-                //if (!line.Replace(" ","").Replace(",","").Replace(".","").Contains(token.Replace(" ", "").Replace(",", "").Replace(".", "")))
-                if (!line.Trim().Contains(token) && !token.Contains(line.Trim()))
+                var currentLine = line.Replace(" ", "").Replace(",", "").Replace(".", "");
+                //if (!currentLine.Contains(token))
+                if (!currentLine.Trim().Contains(token) && !token.Contains(currentLine.Trim()))
                 {
                     result.Add(line);
                 }
@@ -85,7 +88,7 @@ namespace PdfParser.Extensions
 
             return result;
         }
-     
+
 
         // это срезы
         public static List<string> SliceListUpToWords(this List<string> allText, IEnumerable<string> words)
@@ -100,6 +103,23 @@ namespace PdfParser.Extensions
             }
 
             return new List<string>() { "Нет данных!" };
+        }
+
+        public static List<string> SliceListUpToWordsTest(this List<string> allText, IEnumerable<string> words)
+        {
+            var result = new List<string>();
+            result = allText;
+
+            foreach (var word in words)
+            {
+                var endIndex = result.IndexOf(result.FirstOrDefault(v => v.Contains(word)));
+                if (endIndex > 0)
+                {
+                    result = result.GetRange(0, endIndex).SliceListUpToWordsTest(words);
+                }
+            }
+
+            return result;
         }
 
         public static List<string> SliceFollowingOfWords(this List<string> allText, List<string> words)
@@ -160,9 +180,9 @@ namespace PdfParser.Extensions
         public static string GetTextFromQuotes(this string text)
         {
             int count = 0;
-            foreach(var chr in text)
+            foreach (var chr in text)
             {
-                if(chr == '"') count++;
+                if (chr == '"') count++;
             }
 
             if (count == 2)
@@ -297,6 +317,21 @@ namespace PdfParser.Extensions
             }
 
             return result;
+        }
+
+        public static string ReturnNextItemWhenContainsKeyWord(this List<string> allText, List<string> refWords, string keyWord)
+        {
+            foreach (var refWord in refWords)
+            {
+                var index = allText.IndexOf(refWord);
+
+                if (index >= 0)
+                {
+                    if (allText[index - 1].Contains(keyWord) || allText[index + 1].Contains(keyWord)) return refWord;
+                }
+            }
+
+            return string.Empty;
         }
 
 
