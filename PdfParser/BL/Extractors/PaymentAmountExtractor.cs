@@ -4,7 +4,7 @@ using PdfParser.ReferenceData;
 namespace PdfParser.BL.TextExtractors
 {
     // сумма платежа
-    public class PaymentAmountExtractor : TextExtractor
+    public class PaymentAmountExtractor : DataExtractor
     {
         public PaymentAmountExtractor(List<string> parsedData) : base(parsedData)
         {

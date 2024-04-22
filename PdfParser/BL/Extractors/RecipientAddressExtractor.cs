@@ -5,7 +5,7 @@ using PdfParser.ReferenceData.CompanyAddress;
 namespace PdfParser.BL.TextExtractors
 {
     // аддрес получателя
-    public class RecipientAddressExtractor : TextExtractor
+    public class RecipientAddressExtractor : DataExtractor
     {
         public RecipientAddressExtractor(List<string> parsedData) : base(parsedData)
         {
@@ -23,17 +23,14 @@ namespace PdfParser.BL.TextExtractors
             extraction = extraction.RemoveElementsFromListByWords(exclusions);
 
             return new List<string>() { parsedData.ReturnNextItemWhenContainsKeyWord(extraction, usedTokens[token.recipientName]) };
-            //return extraction;
         }
-
-        // GetResultByIndex ипользуем базовую логику
 
         public override string GetResultValue()
         {
             var extraction = ExtractData(keyWords);
 
             var result = "Нет Данных!";
-            if (extraction.Count != 0)
+            if (extraction.Count > 0)
             {
                 result = GetResultByIndex(extraction, new RecipientAddress(), comparator.GetIndexByTokenRatio, keyWords);
             }

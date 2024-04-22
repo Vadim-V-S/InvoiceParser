@@ -3,7 +3,7 @@ using PdfParser.Presenter;
 using PdfParser.View;
 
 //string folderName = "Счета";
-string folderName = "Счета\\3";
+string folderName = "Счета\\2";
 string desktoPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 var folderPath = Path.Combine(desktoPath, folderName);
 

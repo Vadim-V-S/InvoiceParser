@@ -5,7 +5,7 @@ using PdfParser.ReferenceData.CompanyInn;
 namespace PdfParser.BL.TextExtractors
 {
     //инн получателя
-    public class RecipientInnExtractor : TextExtractor, ITextExtractor
+    public class RecipientInnExtractor : DataExtractor, ITextExtractor
     {
         public RecipientInnExtractor(List<string> parsedData) : base(parsedData)
         {
@@ -19,7 +19,6 @@ namespace PdfParser.BL.TextExtractors
         {
             var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords);
-            //extraction = extraction.RemoveTheOnlyWordElementFromList();
             extraction = extraction.RemoveListElementsWithoutDigits();
 
             return extraction;

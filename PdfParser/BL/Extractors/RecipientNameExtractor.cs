@@ -4,7 +4,7 @@ using PdfParser.ReferenceData.CompanyName;
 namespace PdfParser.BL.TextExtractors
 {
     // Получатель платежа
-    public class RecipientNameExtractor : TextExtractor
+    public class RecipientNameExtractor : DataExtractor
     {
         public RecipientNameExtractor(List<string> parsedData) : base(parsedData)
         {
@@ -19,7 +19,6 @@ namespace PdfParser.BL.TextExtractors
             var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords); // выборка по ключевым словам
             extraction = extraction.RemoveElementsFromListByWords(exclusions);      // удаление лишнего по словам исключениям
-            //extraction = extraction.RemoveTheOnlyWordElementFromList();  // удаление элементов состоящщих из одного слова
 
             var result = analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
 
@@ -38,6 +37,10 @@ namespace PdfParser.BL.TextExtractors
             var valueToSave = result.GetTextFromQuotes();
             usedTokens[token.recipientName] = valueToSave.Replace(" - Уровень доверия низкий!", "").Trim();  // запоминаем наш выбор в статическом списке
 
+            if (result.Contains(":"))
+            {
+                return result.Split(":")[1];
+            }
             return result;
         }
     }

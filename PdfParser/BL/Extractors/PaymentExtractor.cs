@@ -5,7 +5,7 @@ using PdfParser.ReferenceData.Interfaces;
 namespace PdfParser.BL.TextExtractors
 {
     // назначение платежа
-    public class PaymentExtractor : TextExtractor
+    public class PaymentExtractor : DataExtractor
     {
         List<string> startSliceWords;
         public PaymentExtractor(List<string> parsedData) : base(parsedData)
@@ -25,16 +25,10 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            //var slice = parsedData.SliceListUpToWords(endSliceWords);
             var slice = parsedData.SliceListUpToWordsInRecursion(endSliceWords);
             var extraction = slice.SliceFollowingOfWords(startSliceWords);
-            //if (extraction.DoesListContainWord(endSliceWords))
-            //{
-            //    extraction = extraction.SliceListUpToWords(endSliceWords);
-            //}
-            return extraction.RemoveElementsFromListByWords(exclusions); //  удаляем по справочнику исключений
 
-            //return extraction.RemoveTheOnlyWordElementFromList(); // стандартно удаляем элементы с одним словом
+            return extraction.RemoveElementsFromListByWords(exclusions); //  удаляем по справочнику исключений
         }
 
         public override string GetResultValue()

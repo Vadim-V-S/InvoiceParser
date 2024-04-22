@@ -4,7 +4,7 @@ using PdfParser.ReferenceData;
 
 namespace PdfParser.BL.TextExtractors
 {
-    public class InvoiceNumberExtractor : TextExtractor, ITextExtractor
+    public class InvoiceNumberExtractor : DataExtractor, ITextExtractor
     {
         public InvoiceNumberExtractor(List<string> parsedData) : base(parsedData)
         {
@@ -19,7 +19,7 @@ namespace PdfParser.BL.TextExtractors
         internal override List<string> ExtractData(List<string> keyWords)
         {
             var slice = parsedData.CreateListByKeyWords(keyWords);
-            var result = analyzer.ReturnElementsByHeaviestWeights(slice, keyWords);
+            var result = analyzer.ReturnElementsByHeavyWeights(slice, keyWords);
 
             return result;
         }

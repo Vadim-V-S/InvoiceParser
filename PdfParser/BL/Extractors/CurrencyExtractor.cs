@@ -5,7 +5,7 @@ using PdfParser.ReferenceData;
 namespace PdfParser.BL.TextExtractors
 {
     // валюта
-    public class CurrencyExtractor : TextExtractor, ITextExtractor
+    public class CurrencyExtractor : DataExtractor, ITextExtractor
     {
         public CurrencyExtractor(List<string> parsedData) : base(parsedData)
         {

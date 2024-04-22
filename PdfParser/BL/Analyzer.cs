@@ -66,7 +66,7 @@
 
         public string SearchTextByIndexValue(ReferenceData.Interfaces.IReferenceData targetField)
         {
-            Dictionary<string, int> valuesByWeghts = new Dictionary<string, int>();
+            Dictionary<string, int> valuesByWeights = new Dictionary<string, int>();
 
             string result = string.Empty;
             foreach (var value in parsedData)
@@ -76,7 +76,7 @@
 
                 try
                 {
-                    valuesByWeghts.Add(value, indexByTokenRatio);
+                    valuesByWeights.Add(value, indexByTokenRatio);
                 }
                 catch
                 {
@@ -86,32 +86,23 @@
 
             int maxWeight = 0;
             string resultValue = string.Empty;
-            if (valuesByWeghts.Count != 0)
+            if (valuesByWeights.Count != 0)
             {
-                maxWeight = valuesByWeghts.Values.Max();
+                maxWeight = valuesByWeights.Values.Max();
 
-                resultValue = valuesByWeghts.MaxBy(entry => entry.Value).Key;
+                resultValue = valuesByWeights.MaxBy(entry => entry.Value).Key;
             }
 
 
             if (maxWeight < 25)
             {
-                if (resultValue != "Нет данных!")
+                if (resultValue != "Нет данных!" && resultValue.Trim() != "")
                     return resultValue + " - Уровень доверия низкий!";
-                //result = resultValue;
             }
-            //else if (maxWeight < 10)
-            //{
-            //    result = "Нет данных!";
-            //    //result = "";
-            //}
-            //else
-            //{
-            return resultValue;
-            //}
 
-            //return result;
+            return resultValue;
         }
+
 
         public List<string> ReturnElementsByHeaviestWeights(List<string> extraction, List<string> keyWords)
         {

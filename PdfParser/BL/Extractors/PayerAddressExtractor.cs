@@ -5,7 +5,7 @@ using PdfParser.ReferenceData.CompanyAddress;
 namespace PdfParser.BL.TextExtractors
 {
     // адрес плательщика
-    public class PayerAddressExtractor : TextExtractor
+    public class PayerAddressExtractor : DataExtractor
     {
         public PayerAddressExtractor(List<string> parsedData) : base(parsedData)
         {
@@ -37,7 +37,7 @@ namespace PdfParser.BL.TextExtractors
             var extraction = ExtractData(keyWords);
 
             var result = "Нет Данных!";
-            if (extraction.Count != 0)
+            if (extraction.Count > 0)
             {
                 result = GetResultByIndex(extraction, new RecipientAddress(), comparator.GetIndexByTokenRatio, keyWords);
             }

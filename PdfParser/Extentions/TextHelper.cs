@@ -325,9 +325,10 @@ namespace PdfParser.Extensions
             {
                 var index = allText.IndexOf(refWord);
 
-                if (index >= 0)
+                if (index > 0)
                 {
-                    if (allText[index - 1].Contains(keyWord) || allText[index + 1].Contains(keyWord)) return refWord;
+                    if (allText[index - 1].Contains(keyWord) || allText[index + 1].Contains(keyWord))
+                        return refWord;
                 }
             }
 
@@ -336,17 +337,17 @@ namespace PdfParser.Extensions
 
 
         // это помощник возвращает индекс строки по частичному совпадению
-        private static int GetElementIndexFromListByPartialMatch(this List<string> allText, string text)
-        {
-            for (int i = 0; i < allText.Count; i++)
-            {
-                if (allText[i].Contains(text))
-                {
-                    return i;
-                };
-            }
+        //private static int GetElementIndexFromListByPartialMatch(this List<string> allText, string text)
+        //{
+        //    for (int i = 0; i < allText.Count; i++)
+        //    {
+        //        if (allText[i].Contains(text))
+        //        {
+        //            return i;
+        //        };
+        //    }
 
-            return -1;
-        }
+        //    return -1;
+        //}
     }
 }

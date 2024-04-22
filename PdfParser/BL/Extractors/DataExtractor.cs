@@ -1,12 +1,11 @@
 ﻿using PdfParser.BL.TextExtractors.Interfaces;
 using PdfParser.Extensions;
 using PdfParser.ReferenceData;
-using PdfParser.ReferenceData.Interfaces;
 
 namespace PdfParser.BL.TextExtractors
 {
     // родительский класс с базовой реализацией
-    public class TextExtractor : ITextExtractor
+    public class DataExtractor : ITextExtractor
     {
         internal ReferenceData.Interfaces.IReferenceData referenceData;
         internal Comparator comparator;
@@ -20,12 +19,10 @@ namespace PdfParser.BL.TextExtractors
         internal Token token = new Token();
         internal Analyzer analyzer;
 
-        public TextExtractor(List<string> parsedData) //инициализация
+        public DataExtractor(List<string> parsedData) //инициализация
         {
             this.parsedData = parsedData;
             keyWords = new List<string>();
-
-            //usedTokens = /*new Dictionary<string, string>();*/
 
             endSliceWords = new List<string>()
             {
@@ -40,8 +37,6 @@ namespace PdfParser.BL.TextExtractors
         //Выборка данных по извлечению
         internal string GetResultByExtraction(List<string> extraction, ReferenceData.Interfaces.IReferenceData referenceData, ComparatorExtractionDelegate extractionDelegate, ComparatorIndexDelegate indexHandler, List<string> words)
         {
-            //var targetWords = ExtractData(words);
-
             analyzer = new Analyzer(extraction, extractionDelegate);
             var resultWords = analyzer.ExtractTextByValue(referenceData);
 
