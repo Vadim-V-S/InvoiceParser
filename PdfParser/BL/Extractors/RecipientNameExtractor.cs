@@ -18,7 +18,7 @@ namespace PdfParser.BL.TextExtractors
         {
             var slice = parsedData.SliceListUpToWords(endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords); // выборка по ключевым словам
-            extraction = extraction.RemoveElementsFromListByWords(exclusions);      // удаление лишнего по словам исключениям
+            extraction = extraction.RemoveElementsFromListByExclusions(exclusions);      // удаление лишнего по словам исключениям
 
             var result = analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
 

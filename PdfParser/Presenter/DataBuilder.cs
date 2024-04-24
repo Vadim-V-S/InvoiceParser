@@ -21,7 +21,7 @@ namespace PdfParser.Presenter
 
         public DataBuilder(string parsedText) // инициализируем поля экстракторов
         {
-            Normalizator normalizator = new Normalizator();
+            Normalizer normalizator = new Normalizer();
             var parsedData = normalizator.NormalizeText(parsedText);
 
             invoiceExtractor = new InvoiceNumberExtractor(parsedData);

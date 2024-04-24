@@ -18,11 +18,12 @@ namespace PdfParser.ReferenceData.CompanyName
             exclusions.Add("обязуется");
             exclusions.Add("оплатить");
             exclusions.Add("направляет");
-            exclusions.Add("получатель");
+            exclusions.Add("получател");
             exclusions.Add("лицензиар");
             exclusions.Add("поставщик");
-            exclusions.Add("исполнитель");
-            exclusions.Add("грузоотправитель");
+            exclusions.Add("продавец");
+            exclusions.Add("исполнител");
+            exclusions.Add("грузоотправител");
             exclusions.Add("bank");
         }
     }

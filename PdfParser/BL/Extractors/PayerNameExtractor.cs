@@ -19,7 +19,7 @@ namespace PdfParser.BL.TextExtractors
         {
             var slice = parsedData.SliceListByTwoWords(usedTokens[token.recipientName], endSliceWords);
             var extraction = slice.CreateListByKeyWords(keyWords.Union(referenceData.GetReferenceWords()).ToList());
-            extraction = extraction.RemoveElementsFromListByWords(exclusions);
+            extraction = extraction.RemoveElementsFromListByExclusions(exclusions);
 
             if (usedTokens[token.recipientName] != "Нет данных!")
             {

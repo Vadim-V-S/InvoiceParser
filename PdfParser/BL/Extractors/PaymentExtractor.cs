@@ -28,7 +28,7 @@ namespace PdfParser.BL.TextExtractors
             var slice = parsedData.SliceListUpToWordsInRecursion(endSliceWords);
             var extraction = slice.SliceFollowingOfWords(startSliceWords);
 
-            return extraction.RemoveElementsFromListByWords(exclusions); //  удаляем по справочнику исключений
+            return extraction.RemoveElementsFromListByExclusions(exclusions); //  удаляем по справочнику исключений
         }
 
         public override string GetResultValue()

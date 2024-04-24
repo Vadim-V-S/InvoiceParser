@@ -27,17 +27,23 @@ namespace PdfParser.Extensions
         }
 
         // удаляем элементы списка по словам исключениям
-        public static List<string> RemoveElementsFromListByWords(this List<string> allText, IEnumerable<string> keyWords)
+        public static List<string> RemoveElementsFromListByExclusions(this List<string> allText, IEnumerable<string> exclusions)
         {
-            foreach (string word in keyWords)
-            {
-                var item = allText.FirstOrDefault(v => v.Replace(" ", "").Contains(word.Replace(" ", "")));
+            List<string> result = new List<string>();
 
-                if (item != null)
-                    allText.Remove(item);
+            foreach (var line in allText)
+            {
+                if (!exclusions.Any(x => line.Split(" ").Any(y => y.Contains(x))))
+                {
+                    result.Add(line);
+                }
+                //var item = allText.FirstOrDefault(v => v.Replace(" ", "").Contains(word.Replace(" ", "")));
+
+                //if (item != null)
+                //    allText.Remove(item);
             }
 
-            return allText;
+            return result;
         }
 
         // извлекаем список только содержащий ключевые значения

@@ -5,16 +5,29 @@ using System.Text.RegularExpressions;
 
 namespace PdfParser.BL.Normalizator
 {
-    public class Normalizator
+    public class Normalizer
     {
+        List<string> recipientExclusions;
+        List<string> payerExclusions;
+
+        public Normalizer()
+        {
+            IReferenceData recipientName = new RecipientName();
+            IReferenceData payerName = new PayerName();
+
+            recipientExclusions = recipientName.GetExclusions();
+            payerExclusions = payerName.GetExclusions();
+        }
         public List<string> NormalizeText(string parsedText)
         {
             var text = RemoveAllUnreadableChars(parsedText).ToUpper();
-            text = NormalizeQuotesAndSpaces(text);
+            text = NormalizeQuotes(text);
             text = NormalizeInvoiceAttributes(text);
 
             var parsedList = GetParsedList(text);
-            var result = NormalizeKeyWords(parsedList);
+            parsedList = NormalizeKeyWords(parsedList);
+            parsedList = NormolizeInterferingExclusions(parsedList);
+            var result = RemoveColonsAsFirstChar(parsedList);
 
             return result;
         }
@@ -35,10 +48,10 @@ namespace PdfParser.BL.Normalizator
             return result;
         }
 
-        private string NormalizeQuotesAndSpaces(string text)
+        private string NormalizeQuotes(string text)
         {
             var result = text.Replace("«", "\"").Replace("»", "\"");
-            result = Regex.Replace(result, " {2,}", " ");
+            //result = Regex.Replace(result, " {2,}", " ");
 
             return result;
         }
@@ -112,29 +125,83 @@ namespace PdfParser.BL.Normalizator
         }
 
         //объединение строки с одиночным ключевым словом со следующей строкой
-        private List<string> UnionSeparatedKeyWordsAndNextLine(List<string> allText, IEnumerable<string> keyWords)
+        private List<string> UnionSeparatedKeyWordsAndNextLine(List<string> parsedList, IEnumerable<string> keyWords)
         {
             var result = new List<string>();
 
-            for (var i = 0; i < allText.Count; i++)
+            for (var i = 0; i < parsedList.Count; i++)
             {
-                var currentLine = allText[i].Replace(":", "").Trim();
+                var currentLine = parsedList[i].Replace(":", "").Trim();
 
                 foreach (var word in keyWords)
                 {
                     if (currentLine.Contains(word.ToUpper()) && currentLine.Split(' ').Length == 1)
                     {
-                        result.Add($"{currentLine}: {allText[i + 1]}");
+                        result.Add($"{currentLine}: {parsedList[i + 1]}");
                     }
                 }
                 if (currentLine.Split(' ').Length != 1)
                 {
-                    result.Add(allText[i]);
+                    result.Add(parsedList[i]);
                 }
             }
 
             return result;
         }
 
+        private List<string> NormolizeInterferingExclusions(List<string> parsedList)
+        {
+            List<string> result = new List<string>();
+
+            for (int i = 0; i < parsedList.Count; i++)
+            {
+                var currentLine = parsedList[i].Split(" ");
+                bool recipientCheck = recipientExclusions.Any(y => currentLine.Any(x => x.Contains(y)));
+                bool payerCheck = payerExclusions.Any(y => currentLine.Any(x => x.Contains(y)));
+                //bool recipientCheck = currentLine.Any(y => recipientExclusions.Any(x => x.Contains(y)));
+                //bool payerCheck = currentLine.Any(y => payerExclusions.Any(x => x.Contains(y)));
+
+                if (recipientCheck && payerCheck)
+                {
+                    try
+                    {
+                        result.Add($"{currentLine[0]}: {parsedList[i + 1]}");
+                        result.Add($"{currentLine[1]}: {parsedList[i + 2]}");
+                    }
+                    catch { }
+                }
+
+                result.Add(parsedList[i]);
+            }
+
+            return result;
+        }
+
+        private List<string> RemoveColonsAsFirstChar(List<string> parsedList)
+        {
+            HashSet<string> result = new HashSet<string>();
+
+            foreach (var line in parsedList)
+            {
+                var currentLine = NormalizeSpaces(line);
+
+                if (line.Substring(0, 1) == ":")
+                {
+                    result.Add(currentLine.Substring(1).Trim());
+                }
+                else
+                {
+                    result.Add(currentLine);
+                }
+            }
+
+            return result.ToList();
+        }
+
+
+        private string NormalizeSpaces(string text)
+        {
+            return Regex.Replace(text, " {2,}", " "); ;
+        }
     }
 }

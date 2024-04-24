@@ -1,6 +1,4 @@
-﻿using PdfParser.ReferenceData.Interfaces;
-
-namespace PdfParser.ReferenceData.CompanyInn
+﻿namespace PdfParser.ReferenceData.CompanyInn
 {
     public class CompanyInn : Interfaces.IReferenceData
     {
@@ -12,6 +10,7 @@ namespace PdfParser.ReferenceData.CompanyInn
             inn.Add("ИНН");
 
             keyWords.Add("ИНН");
+            keyWords.Add("КПП");
             keyWords.Add("ИНН/КПП");
         }
 

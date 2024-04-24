@@ -29,6 +29,8 @@ namespace PdfParser.ReferenceData.CompanyAddress
             keyWords.Add("обл.");
             keyWords.Add("обл,");
             keyWords.Add("офис ");
+            keyWords.Add("стр. ");
+            keyWords.Add(". ");
         }
 
         public List<string> GetReferenceWords()
