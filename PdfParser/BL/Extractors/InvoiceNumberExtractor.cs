@@ -18,10 +18,11 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.CreateListByKeyWords(keyWords);
-            var result = analyzer.ReturnElementsByHeavyWeights(slice, keyWords);
+            var slice = parsedData.CutOffFooter(paymentHeaderTokens);
 
-            return result;
+            var extract = slice.CreateListByKeyTokens(keyWords);
+            extract = analyzer.ReturnElementsIgnoringWeakOnes(extract, keyWords);
+            return analyzer.ReturnElementsByHeaviestWeights(extract, keyWords);
         }
 
         public override string GetResultValue()
@@ -33,7 +34,7 @@ namespace PdfParser.BL.TextExtractors
             {
                 result = GetResultByIndex(extraction, new Invoice(), comparator.GetIndexByPartialRatio, keyWords);
             }
-            usedTokens[token.invoice] = result;
+            //usedTokens[token.invoice] = result;
 
             return result;
         }

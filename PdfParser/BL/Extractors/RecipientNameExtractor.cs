@@ -16,10 +16,14 @@ namespace PdfParser.BL.TextExtractors
         }
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.SliceListUpToWords(endSliceWords);
-            var extraction = slice.CreateListByKeyWords(keyWords); // выборка по ключевым словам
-            extraction = extraction.RemoveElementsFromListByExclusions(exclusions);      // удаление лишнего по словам исключениям
+            var slice = parsedData.CutOffFooter(paymentHeaderTokens);
+            slice = slice.GetRange(0,slice.Count/3);
 
+            var extraction = slice.CreateListByKeyTokens(keyWords); // выборка по ключевым словам
+            extraction = extraction.RemoveElementsFromListByExclusions(exclusions);      // удаление лишнего по словам исключениям
+            
+            keyWords.Add(":");
+            keyWords.Add("\"");
             var result = analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
 
             return result;
@@ -37,10 +41,12 @@ namespace PdfParser.BL.TextExtractors
             var valueToSave = result.GetTextFromQuotes();
             usedTokens[token.recipientName] = valueToSave.Replace(" - Уровень доверия низкий!", "").Trim();  // запоминаем наш выбор в статическом списке
 
-            if (result.Contains(":"))
+            var index = result.IndexOf(":");
+            if (index > 0)
             {
-                return result.Split(":")[1];
+                return result.Substring(index);
             }
+
             return result;
         }
     }

@@ -1,7 +1,6 @@
 ﻿using PdfParser.BL.Normalizator;
 using PdfParser.BL.TextExtractors;
 using PdfParser.BL.TextExtractors.Interfaces;
-using PdfParser.Extensions;
 
 namespace PdfParser.Presenter
 {
@@ -29,8 +28,8 @@ namespace PdfParser.Presenter
             payerInnExtractor = new PayerInnExtractor(parsedData);
             recipientNameExtractor = new RecipientNameExtractor(parsedData);
             payerNameExtractor = new PayerNameExtractor(parsedData);
-            recipientAddressExtractor = new RecipientAddressExtractor(parsedData);
-            payerAddressExtractor = new PayerAddressExtractor(parsedData);
+            //recipientAddressExtractor = new RecipientAddressExtractor(parsedData);
+            //payerAddressExtractor = new PayerAddressExtractor(parsedData);
             amountExtractor = new PaymentAmountExtractor(parsedData);
             paymentExtractor = new PaymentExtractor(parsedData);
             currencyExtractor = new CurrencyExtractor(parsedData);
@@ -44,8 +43,8 @@ namespace PdfParser.Presenter
             var payerName = payerNameExtractor.GetResultValue();
             var recipientInn = recipientInnExtractor.GetResultValue();
             var payerInn = payerInnExtractor.GetResultValue();
-            var recipientAddress = recipientAddressExtractor.GetResultValue();
-            var payerAddress = payerAddressExtractor.GetResultValue();
+            //var recipientAddress = recipientAddressExtractor.GetResultValue();
+            //var payerAddress = payerAddressExtractor.GetResultValue();
             var paymentAmount = amountExtractor.GetResultValue();
             var paymentName = paymentExtractor.GetResultValue();
             var currency = currencyExtractor.GetResultValue();
@@ -55,10 +54,10 @@ namespace PdfParser.Presenter
                 Invoice = invoice,
                 RecipientName = recipientName,
                 RecipientInn = recipientInn,
-                RecipientAddress = recipientAddress,
+                //RecipientAddress = recipientAddress,
                 PayerName = payerName,
                 PayerInn = payerInn,
-                PayerAddress = payerAddress,
+                //PayerAddress = payerAddress,
                 PaymentName = paymentName,
                 PaymentAmount = paymentAmount,
                 Currency = currency,

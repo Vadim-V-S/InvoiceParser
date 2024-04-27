@@ -11,13 +11,13 @@ namespace PdfParser.View
             result.AppendFormat($"Счет: {invoiceData.Invoice}\n");
             result.AppendFormat($"Получатель: {invoiceData.RecipientName}\n");
             result.AppendFormat($"ИНН Получателя: {invoiceData.RecipientInn}\n");
-            result.AppendFormat($"Адрес Получателя: {invoiceData.RecipientAddress}\n");
+            //result.AppendFormat($"Адрес Получателя: {invoiceData.RecipientAddress}\n");
 
             result.AppendFormat($"-\n");
 
             result.AppendFormat($"Плательщик: {invoiceData.PayerName}\n");
             result.AppendFormat($"ИНН Плательщика: {invoiceData.PayerInn}\n");
-            result.AppendFormat($"Адрес Плательщика: {invoiceData.PayerAddress}\n");
+            //result.AppendFormat($"Адрес Плательщика: {invoiceData.PayerAddress}\n");
 
             result.AppendFormat($"-\n");
 

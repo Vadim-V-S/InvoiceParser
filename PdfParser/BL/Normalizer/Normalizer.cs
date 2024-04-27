@@ -1,6 +1,7 @@
 ﻿using PdfParser.Extensions;
 using PdfParser.ReferenceData.CompanyName;
 using PdfParser.ReferenceData.Interfaces;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace PdfParser.BL.Normalizator
@@ -27,6 +28,7 @@ namespace PdfParser.BL.Normalizator
             var parsedList = GetParsedList(text);
             parsedList = NormalizeKeyWords(parsedList);
             parsedList = NormolizeInterferingExclusions(parsedList);
+            parsedList = UnionSeparatedCompanyNames(parsedList);
             var result = RemoveColonsAsFirstChar(parsedList);
 
             return result;
@@ -81,11 +83,13 @@ namespace PdfParser.BL.Normalizator
 
                 foreach (string word in attribute.GetVocalbuary())
                 {
-                    if (word.ToUpper() == "ИНН /КПП")
+                    var currentWord = word.ToUpper().Trim().Replace(" ", "");
+                    if (currentWord == "ИНН/КПП")
                     {
-                        var inn = text.GetNextWordByReferenceText(word.ToUpper() + " ");
+                        var inn = text.GetNextWordByReferenceText(currentWord + " ");
                         var newInn = inn.Replace("/", ", КПП ");
-                        text = text.Replace(inn, newInn);
+
+                        text = text.Replace(inn, "ИНН " + newInn).Replace(currentWord, "");
                     }
                     text = new string(text.Replace(word.ToUpper(), refWord.ToUpper()));
                 }
@@ -138,6 +142,7 @@ namespace PdfParser.BL.Normalizator
                     if (currentLine.Contains(word.ToUpper()) && currentLine.Split(' ').Length == 1)
                     {
                         result.Add($"{currentLine}: {parsedList[i + 1]}");
+                        i++;
                     }
                 }
                 if (currentLine.Split(' ').Length != 1)
@@ -146,6 +151,41 @@ namespace PdfParser.BL.Normalizator
                 }
             }
 
+            return result;
+        }
+
+        private List<string> UnionSeparatedCompanyNames(List<string> parsedList)
+        {
+            List<string> result = new List<string>();
+
+            IReferenceData companyName = new CompanyName();
+            var refWords = companyName.GetReferenceWords();
+            refWords.Add("ОБЩЕСТВО");
+            refWords.Add("ОГРАНИЧЕННОЙ");
+            refWords.Add("ОТВЕТСТВЕННОСТЬЮ");
+            refWords.Add("АКЦИОНЕРНОЕ");
+
+            for (var j = 0; j < parsedList.Count - 1; j++)
+            {
+                var currentLine = parsedList[j];
+                var nextLine = parsedList[j + 1];
+                var i = 0;
+                var v = 0;
+                var currentLineQuotes = 0;
+                var nextLineQuotes = 0;
+                while ((i = currentLine.IndexOf("\"", i)) != -1) { ++currentLineQuotes; i += "\"".Length; }
+                while ((v = nextLine.IndexOf("\"", v)) != -1) { ++nextLineQuotes; v += "\"".Length; }
+
+                if (refWords.Any(w => currentLine.Split(' ').Any(l => l.Contains(w))) && currentLineQuotes < 2 && nextLineQuotes >= 2)
+                {
+                    result.Add($"{currentLine} {nextLine}");
+                    j++;
+                }
+                else
+                {
+                    result.Add(currentLine);
+                }
+            }
             return result;
         }
 
@@ -158,8 +198,6 @@ namespace PdfParser.BL.Normalizator
                 var currentLine = parsedList[i].Split(" ");
                 bool recipientCheck = recipientExclusions.Any(y => currentLine.Any(x => x.Contains(y)));
                 bool payerCheck = payerExclusions.Any(y => currentLine.Any(x => x.Contains(y)));
-                //bool recipientCheck = currentLine.Any(y => recipientExclusions.Any(x => x.Contains(y)));
-                //bool payerCheck = currentLine.Any(y => payerExclusions.Any(x => x.Contains(y)));
 
                 if (recipientCheck && payerCheck)
                 {
@@ -167,6 +205,31 @@ namespace PdfParser.BL.Normalizator
                     {
                         result.Add($"{currentLine[0]}: {parsedList[i + 1]}");
                         result.Add($"{currentLine[1]}: {parsedList[i + 2]}");
+                        //i++;
+                        //i++;
+
+                        for (var j = i + 2; j < parsedList.Count; j++)
+                        {
+                            if (j % 2 == 0 && parsedList[j].Contains("ИНН"))
+                            {
+                                parsedList[j] = $"ПОЛУЧАТЕЛЬ: {parsedList[j]}";
+                                //i++;
+                            }
+                            if (j % 2 != 0 && parsedList[j].Contains("ИНН"))
+                            {
+                                parsedList[j] = $"ЗАКАЗЧИК: {parsedList[j]}";
+                                //i++;
+                            }
+                        }
+                        //{
+
+                        //}
+
+                        //if (parsedList[i + 4].Contains("ИНН"))
+                        //{
+                        //    result.Add($"ЗАКАЗЧИК: {parsedList[i + 4]}");
+                        //    //i++;
+                        //}
                     }
                     catch { }
                 }
@@ -183,7 +246,7 @@ namespace PdfParser.BL.Normalizator
 
             foreach (var line in parsedList)
             {
-                var currentLine = NormalizeSpaces(line);
+                var currentLine = NormalizeDoubleChars(line);
 
                 if (line.Substring(0, 1) == ":")
                 {
@@ -199,9 +262,10 @@ namespace PdfParser.BL.Normalizator
         }
 
 
-        private string NormalizeSpaces(string text)
+        private string NormalizeDoubleChars(string text)
         {
-            return Regex.Replace(text, " {2,}", " "); ;
+            var result = Regex.Replace(text, " {2,}", " ");
+            return Regex.Replace(result, ":{2,}", ":");
         }
     }
 }

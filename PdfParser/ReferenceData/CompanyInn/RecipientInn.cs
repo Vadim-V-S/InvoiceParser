@@ -8,9 +8,15 @@ namespace PdfParser.ReferenceData.CompanyInn
         {
             keyWords.Add("отправител");
             keyWords.Add("поставщик");
-            keyWords.Add("лицензиат");
+            keyWords.Add("лицензиар");
             keyWords.Add("продавец");
             keyWords.Add("лицензиар");
+
+            exclusions.Add("плательщик");
+            exclusions.Add("лицензиат");
+            exclusions.Add("покупател");
+            exclusions.Add("заказчик");
+            exclusions.Add("грузополучател");
         }
     }
 }

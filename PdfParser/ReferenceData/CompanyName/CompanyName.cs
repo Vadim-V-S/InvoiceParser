@@ -14,13 +14,13 @@ namespace PdfParser.ReferenceData.CompanyName
             companyName.Add("АО ");
             companyName.Add("ИП ");
             //companyName.Add("Акционерное Общество ");
-            companyName.Add("ответственностью \"");
-            companyName.Add("\"");
+            //companyName.Add("ответственностью \"");
+            //companyName.Add("\"");
 
             keyWords.Add("ооо ");
             keyWords.Add("ао ");
             keyWords.Add("ип ");
-            keyWords.Add(": ");
+            //keyWords.Add(": ");
         }
 
         public List<string> GetReferenceWords()

@@ -117,7 +117,7 @@
             return result;
         }
 
-        public List<string> ReturnElementsByHeavyWeights(List<string> extraction, List<string> keyWords)
+        public List<string> ReturnElementsIgnoringWeakOnes(List<string> extraction, List<string> keyWords)
         {
             List<string> result = new List<string>();
             var weghtsMatrix = SetWeightsByKeyWords(extraction, keyWords);
@@ -134,17 +134,20 @@
         {
             Dictionary<string, int> weightsMatrix = new Dictionary<string, int>();
 
-            foreach (var value in allText)
+            foreach (var line in allText)
             {
                 int weight = 0;
                 foreach (var keyWord in keyWords)
                 {
-                    if (value.Contains(keyWord))
+                    if (line.Contains(keyWord))
                     {
-                        weight++;
+                        var i = 0;
+                        var count = 0;
+                        while ((i = line.IndexOf(keyWord, i)) != -1) { ++count; i += keyWord.Length; }
+                        weight += count;
                     }
                 }
-                weightsMatrix.Add(value, weight);
+                weightsMatrix.Add(line, weight);
             }
 
             return weightsMatrix;

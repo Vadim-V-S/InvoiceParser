@@ -14,7 +14,8 @@ namespace PdfParser.BL.TextExtractors
         internal List<string> parsedData = new List<string>();
         internal List<string> keyWords; // справочник ключевых слов для выборки из распасенных данных
         internal List<string> exclusions; // справочник ключевых слов для исключения элементов списка из выборки
-        internal List<string> endSliceWords = new List<string>();
+        internal List<string> invoiceFooterTokens = new List<string>();
+        internal List<string> paymentHeaderTokens = new List<string>();
         internal static Dictionary<string, string> usedTokens = new Dictionary<string, string>(); // список для уже использованных выбранных значений. Используется только для получения наименований компаний
         internal Token token = new Token();
         internal Analyzer analyzer;
@@ -24,14 +25,32 @@ namespace PdfParser.BL.TextExtractors
             this.parsedData = parsedData;
             keyWords = new List<string>();
 
-            endSliceWords = new List<string>()
+            invoiceFooterTokens = new List<string>()
             {
                 "НАЗНАЧЕНИЕ",
                 "ВСЕГО",
-                "ИТОГО"
+                "К ОПЛАТЕ"
+                //"ИТОГО"
+            };
+
+            paymentHeaderTokens = new List<string>()
+            {
+                "ОПЛАТА",
+                "СУММА",
+                "ЦЕНА",
+                "ТОВАРЫ"
             };
 
             analyzer = new Analyzer();
+        }
+
+        internal string GetLastUsedToken()
+        {
+            var usedData = usedTokens.Values.Where(v => v != "Нет Данных!").ToList();
+            if (usedData.Count != 0)
+                return usedData[usedData.Count - 1];
+            else
+                return string.Empty;
         }
 
         //Выборка данных по извлечению
@@ -67,8 +86,8 @@ namespace PdfParser.BL.TextExtractors
         //Первоначальная выборка данных из парсинга по ключевым словам
         internal virtual List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.SliceListUpToWords(endSliceWords);
-            var extraction = slice.CreateListByKeyWords(keyWords);
+            var slice = parsedData.CutOffFooter(invoiceFooterTokens);
+            var extraction = slice.CreateListByKeyTokens(keyWords);
 
             return extraction;
         }

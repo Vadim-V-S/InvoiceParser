@@ -17,12 +17,15 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.SliceListByTwoWords(usedTokens[token.recipientName], endSliceWords);
-            var extraction = slice.CreateListByKeyWords(keyWords.Union(referenceData.GetReferenceWords()).ToList());
+            var slice = parsedData.SliceListBetweenTwoTokens(GetLastUsedToken(), paymentHeaderTokens);
+
+            var extraction = slice.CreateListByKeyTokens(keyWords.Union(referenceData.GetReferenceWords()).ToList());
             extraction = extraction.RemoveElementsFromListByExclusions(exclusions);
 
             if (usedTokens[token.recipientName] != "Нет данных!")
             {
+                keyWords.Add(":");
+                keyWords.Add("\"");
                 extraction = analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
                 return extraction.RemoveElementsFromListByToken(usedTokens[token.recipientName]); // все тоже самое как и получателя, только дополнительно удаляем уже выбранного получателя платежа из списка
             }
@@ -41,10 +44,12 @@ namespace PdfParser.BL.TextExtractors
             }
             usedTokens[token.payerName] = result.Replace(" - Уровень доверия низкий!", "").Trim();  // запоминаем наш выбор в статическом списке
 
-            if (result.Contains(":"))
+            var index = result.IndexOf(":");
+            if (index > 0)
             {
-                return result.Split(":")[1];
+                return result.Substring(index);
             }
+
             return result;
         }
     }

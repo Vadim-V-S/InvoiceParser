@@ -11,20 +11,23 @@ namespace PdfParser.BL.TextExtractors
         {
             referenceData = new PayerInn();
             keyWords = referenceData.GetKeyWords();
+            exclusions = referenceData.GetExclusions();
 
             comparator = new Comparator(new PayerInn());
         }
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.SliceListUpToWords(endSliceWords);
-            var extraction = slice.CreateListByKeyWords(keyWords);
+            var slice = parsedData.CutOffFooter(paymentHeaderTokens);
+
+            var extraction = slice.CreateListByKeyTokens(keyWords);
+            extraction = extraction.RemoveElementsFromListByExclusions(exclusions);
             extraction = extraction.RemoveListElementsWithoutDigits();
 
             if (usedTokens[token.recipientInn] != "Нет данных!")
             {
                 extraction = extraction.RemoveElementsFromListByToken(usedTokens[token.recipientInn]);
-                
+
                 return analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
             }
 

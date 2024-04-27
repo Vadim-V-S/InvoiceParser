@@ -18,15 +18,21 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.SliceListUpToWords(endSliceWords);
-            var extraction = slice.CreateListByKeyWords(keyWords);
+            var slice = parsedData.SliceListBetweenTwoTokens(GetLastUsedToken(), paymentHeaderTokens);
+
+            var extraction = slice.CreateListByKeyTokens(keyWords);
             extraction = extraction.RemoveElementsFromListByExclusions(exclusions);
+            keyWords.Add(".");
+            keyWords.Add(",");
+            extraction = analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords);
+            //extraction = parsedData.GetClosestElementToWord(usedTokens[token.payerName], extraction);
 
             if (usedTokens.Count > 0)
             {
                 extraction = extraction.RemoveElementsFromListByToken(usedTokens[token.recipientAddress]);
 
-                return new List<string>() { parsedData.ReturnNextItemWhenContainsKeyWord(extraction, usedTokens[token.payerName]) };
+                //return extraction;
+                //return new List<string>() { parsedData.ReturnNextItemWhenContainsKeyWord(extraction, usedTokens[token.payerName]) };
             }
 
             return extraction;

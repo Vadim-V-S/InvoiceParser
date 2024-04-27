@@ -18,11 +18,18 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.SliceListUpToWords(endSliceWords);
-            var extraction = slice.CreateListByKeyWords(keyWords);
-            extraction = extraction.RemoveElementsFromListByExclusions(exclusions);
+            var slice = parsedData.CutOffFooter(paymentHeaderTokens);
+            //slice = slice.GetRange(0, slice.Count / 3);
 
-            return new List<string>() { parsedData.ReturnNextItemWhenContainsKeyWord(extraction, usedTokens[token.recipientName]) };
+            var extraction = slice.CreateListByKeyTokens(keyWords);
+            extraction = extraction.RemoveElementsFromListByExclusions(exclusions);
+            keyWords.Add(".");
+            keyWords.Add(",");
+            extraction = analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords);
+            //extraction = parsedData.GetClosestElementToWord(usedTokens[token.recipientName], extraction);
+
+            return extraction;
+            //return new List<string>() { parsedData.ReturnNextItemWhenContainsKeyWord(extraction, usedTokens[token.recipientName]) };
         }
 
         public override string GetResultValue()

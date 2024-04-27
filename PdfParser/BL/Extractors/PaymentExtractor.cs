@@ -7,28 +7,29 @@ namespace PdfParser.BL.TextExtractors
     // назначение платежа
     public class PaymentExtractor : DataExtractor
     {
-        List<string> startSliceWords;
         public PaymentExtractor(List<string> parsedData) : base(parsedData)
         {
             referenceData = new Payment();
             keyWords = referenceData.GetKeyWords();
             exclusions = referenceData.GetExclusions();
-
-            startSliceWords = new List<string>()
-            {
-                "ОПЛАТА",
-                "СУММА",
-                "ЦЕНА",
-                "ТОВАРЫ"
-            };
         }
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.SliceListUpToWordsInRecursion(endSliceWords);
-            var extraction = slice.SliceFollowingOfWords(startSliceWords);
+            var slice = parsedData.CutOffFooter(invoiceFooterTokens);
+            slice = slice.CutOffTop(paymentHeaderTokens);
 
-            return extraction.RemoveElementsFromListByExclusions(exclusions); //  удаляем по справочнику исключений
+            var extraction = slice.RemoveElementsFromListByExclusions(exclusions);
+            var concintentData = parsedData.GetConsistentData(extraction);
+
+            while (!concintentData.DoesListContainsDigits() && concintentData.Count != 0)
+            {
+                concintentData = extraction.Except(concintentData).ToList();
+                concintentData = parsedData.GetConsistentData(concintentData);
+            }
+
+
+            return concintentData;
         }
 
         public override string GetResultValue()

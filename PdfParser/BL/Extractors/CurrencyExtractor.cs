@@ -17,7 +17,7 @@ namespace PdfParser.BL.TextExtractors
 
         internal virtual List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.CreateListByKeyWords(keyWords);
+            var slice = parsedData.CreateListByKeyTokens(keyWords);
 
             return slice;
         }

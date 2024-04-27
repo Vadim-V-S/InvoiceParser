@@ -4,6 +4,7 @@
     {
         internal List<string> inn = new List<string>();
         internal List<string> keyWords = new List<string>();
+        internal List<string> exclusions = new List<string>();
         public CompanyInn()
         {
             inn.Add("ИНН ");
@@ -25,7 +26,7 @@
         }
         public List<string> GetExclusions()
         {
-            return new List<string>();
+            return exclusions.ConvertAll(x => x.ToUpper());
         }
     }
 }

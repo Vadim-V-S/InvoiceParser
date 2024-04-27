@@ -20,17 +20,16 @@ namespace PdfParser.ReferenceData
             paymentName.Add("Услуги ");;
             paymentName.Add(" за использование ");;
 
-            keyWords.Add("назначение");
-            keyWords.Add("всего");
-            keyWords.Add("итого");
-            //keyWords.Add("цена");
-
             exclusions.Add("наименование");
             exclusions.Add("всего");
             exclusions.Add("итого");
             exclusions.Add("ндс");
             exclusions.Add("кол-во");
             exclusions.Add("количество");
+            exclusions.Add("инн ");
+            exclusions.Add("внимание");
+            exclusions.Add("банк ");
+            exclusions.Add("bank ");
         }
 
         public List<string> GetReferenceWords()

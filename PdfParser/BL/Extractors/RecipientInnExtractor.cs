@@ -11,14 +11,18 @@ namespace PdfParser.BL.TextExtractors
         {
             referenceData = new RecipientInn();
             keyWords = referenceData.GetKeyWords();
+            exclusions= referenceData.GetExclusions();
 
             comparator = new Comparator(new RecipientInn());
         }
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.SliceListUpToWords(endSliceWords);
-            var extraction = slice.CreateListByKeyWords(keyWords);
+            var slice = parsedData.CutOffFooter(paymentHeaderTokens);
+            //slice = slice.GetRange(0, slice.Count / 2);
+
+            var extraction = slice.CreateListByKeyTokens(keyWords);
+            extraction = extraction.RemoveElementsFromListByExclusions(exclusions);
             extraction = extraction.RemoveListElementsWithoutDigits();
 
             return extraction;
