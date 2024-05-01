@@ -1,6 +1,7 @@
 ﻿using PdfParser.Extensions;
 using PdfParser.ReferenceData;
 using PdfParser.ReferenceData.Interfaces;
+using System.Linq;
 
 namespace PdfParser.BL.TextExtractors
 {
@@ -10,26 +11,34 @@ namespace PdfParser.BL.TextExtractors
         public PaymentExtractor(List<string> parsedData) : base(parsedData)
         {
             referenceData = new Payment();
-            keyWords = referenceData.GetKeyWords();
+            //keyWords = referenceData.GetKeyWords();
             exclusions = referenceData.GetExclusions();
         }
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
             var slice = parsedData.CutOffFooter(invoiceFooterTokens);
-            slice = slice.CutOffTop(paymentHeaderTokens);
 
-            var extraction = slice.RemoveElementsFromListByExclusions(exclusions);
-            var concintentData = parsedData.GetConsistentData(extraction);
-
-            while (!concintentData.DoesListContainsDigits() && concintentData.Count != 0)
+            if (paymentHeaderTokens.Any(t => slice.Any(s => s.Contains(t))))
             {
-                concintentData = extraction.Except(concintentData).ToList();
-                concintentData = parsedData.GetConsistentData(concintentData);
+                slice = slice.CutOffTop(paymentHeaderTokens);
+                var extraction = slice.RemoveElementsFromListByExclusions(exclusions);
+                var concintentData = parsedData.GetConsistentData(extraction);
+                while (!concintentData.DoesListContainsDigits() && concintentData.Count != 0)
+                {
+                    concintentData = extraction.Except(concintentData).ToList();
+                    concintentData = parsedData.GetConsistentData(concintentData);
+                }
+                return concintentData;
+            }
+            else
+            {
+                slice = slice.CutOffTop(GetLastUsedToken());
             }
 
 
-            return concintentData;
+
+            return slice;
         }
 
         public override string GetResultValue()

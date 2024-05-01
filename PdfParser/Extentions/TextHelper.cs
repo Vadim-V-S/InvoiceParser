@@ -45,7 +45,7 @@ namespace PdfParser.Extensions
                 if (!findings)
                     result.Add(line);
 
-                findings= false;
+                findings = false;
             }
 
             return result;
@@ -126,6 +126,18 @@ namespace PdfParser.Extensions
             return new List<string>() { "Нет данных!" };
         }
 
+        public static List<string> CutOffTop(this List<string> allText, string token)
+        {
+            var index = GetMaxIndex(allText, token, 0) + 1;
+
+            if (index > 0)
+            {
+                return allText.GetRange(index, allText.Count - index);
+            }
+
+            return allText;
+        }
+
         public static List<string> GetConsistentData(this List<string> allText, List<string> extractedData)
         {
             var result = new List<string>();
@@ -175,12 +187,34 @@ namespace PdfParser.Extensions
             return index;
         }
 
-        public static List<string> SliceListBetweenTwoTokens(this List<string> allText, string token, IEnumerable<string> footerTokens)
+        private static int GetMaxIndex(List<string> allText, string word, int refIndex)
+        {
+            int index = allText.Count - 1;
+
+            var i = 0;
+
+            for (; i < allText.Count; i++)
+            {
+
+                if (allText[i].Contains(word))
+                {
+                    index = i;
+                }
+            }
+            return index;
+        }
+
+        public static List<string> SliceListByTwoWords(this List<string> allText, string token, IEnumerable<string> footerTokens)
         {
             var startIndex = allText.IndexOf(allText.FirstOrDefault(v => v.Replace(",", "").Contains(token)));
             foreach (var footerToken in footerTokens)
             {
                 var endIndex = allText.IndexOf(allText.FirstOrDefault(v => v.Contains(footerToken)));
+                if (endIndex < 0)
+                {
+                    endIndex = allText.Count - 1;
+                }
+
                 if (endIndex > 0 && startIndex >= 0 && endIndex - startIndex > 4)
                 {
                     return allText.GetRange(startIndex, endIndex - startIndex);
@@ -298,7 +332,7 @@ namespace PdfParser.Extensions
 
         public static bool DoesListContainsDigits(this List<string> text)
         {
-            foreach(var line in text)
+            foreach (var line in text)
             {
                 if (IsDigitInString(line))
                 {
@@ -310,9 +344,9 @@ namespace PdfParser.Extensions
         }
         public static bool IsDigitInString(this string text)
         {
-            if(text.Any(char.IsDigit))
+            if (text.Any(char.IsDigit))
                 return true;
-        
+
             return false;
         }
 

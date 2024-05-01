@@ -1,7 +1,6 @@
 ﻿using PdfParser.Extensions;
 using PdfParser.ReferenceData.CompanyName;
 using PdfParser.ReferenceData.Interfaces;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace PdfParser.BL.Normalizator
@@ -10,11 +9,11 @@ namespace PdfParser.BL.Normalizator
     {
         List<string> recipientExclusions;
         List<string> payerExclusions;
+        IReferenceData recipientName = new RecipientName();
+        IReferenceData payerName = new PayerName();
 
         public Normalizer()
         {
-            IReferenceData recipientName = new RecipientName();
-            IReferenceData payerName = new PayerName();
 
             recipientExclusions = recipientName.GetExclusions();
             payerExclusions = payerName.GetExclusions();
@@ -29,9 +28,11 @@ namespace PdfParser.BL.Normalizator
             parsedList = NormalizeKeyWords(parsedList);
             parsedList = NormolizeInterferingExclusions(parsedList);
             parsedList = UnionSeparatedCompanyNames(parsedList);
-            var result = RemoveColonsAsFirstChar(parsedList);
+            parsedList = RemoveDoublicatesInList(parsedList);
+            parsedList = RemoveColonsAsFirstChar(parsedList);
+            var result = MapInvoice(parsedList);
 
-            return result;
+            return parsedList;
         }
 
         private string RemoveAllUnreadableChars(string text)
@@ -102,7 +103,7 @@ namespace PdfParser.BL.Normalizator
         private List<string> GetParsedList(string parsedText)
         {
             string[] textArray;
-            HashSet<string> parsedList = new HashSet<string>();
+            List<string> parsedList = new List<string>();
 
             textArray = parsedText.Split("\n");
 
@@ -114,7 +115,7 @@ namespace PdfParser.BL.Normalizator
                 }
             };
 
-            return parsedList.ToList();
+            return parsedList;
         }
 
         private List<string> NormalizeKeyWords(List<string> parsedList)
@@ -135,6 +136,7 @@ namespace PdfParser.BL.Normalizator
 
             for (var i = 0; i < parsedList.Count; i++)
             {
+                bool flag = false;
                 var currentLine = parsedList[i].Replace(":", "").Trim();
 
                 foreach (var word in keyWords)
@@ -143,9 +145,12 @@ namespace PdfParser.BL.Normalizator
                     {
                         result.Add($"{currentLine}: {parsedList[i + 1]}");
                         i++;
+                        flag = true;
+                        //break;
                     }
                 }
-                if (currentLine.Split(' ').Length != 1)
+                //if (currentLine.Split(' ').Length != 1)
+                if (!flag)
                 {
                     result.Add(parsedList[i]);
                 }
@@ -196,8 +201,12 @@ namespace PdfParser.BL.Normalizator
             for (int i = 0; i < parsedList.Count; i++)
             {
                 var currentLine = parsedList[i].Split(" ");
-                bool recipientCheck = recipientExclusions.Any(y => currentLine.Any(x => x.Contains(y)));
-                bool payerCheck = payerExclusions.Any(y => currentLine.Any(x => x.Contains(y)));
+
+                var recipientKeyTokens = recipientExclusions.Where(x => !payerExclusions.Contains(x)).ToList();
+                var payerKeyTokens = payerExclusions.Where(x => !recipientExclusions.Contains(x)).ToList();
+
+                bool recipientCheck = recipientKeyTokens.Any(y => currentLine.Any(x => x.Contains(y)));
+                bool payerCheck = payerKeyTokens.Any(y => currentLine.Any(x => x.Contains(y)));
 
                 if (recipientCheck && payerCheck)
                 {
@@ -205,31 +214,22 @@ namespace PdfParser.BL.Normalizator
                     {
                         result.Add($"{currentLine[0]}: {parsedList[i + 1]}");
                         result.Add($"{currentLine[1]}: {parsedList[i + 2]}");
-                        //i++;
-                        //i++;
+                        i++;
+                        i++;
 
                         for (var j = i + 2; j < parsedList.Count; j++)
                         {
                             if (j % 2 == 0 && parsedList[j].Contains("ИНН"))
                             {
                                 parsedList[j] = $"ПОЛУЧАТЕЛЬ: {parsedList[j]}";
-                                //i++;
+                                i++;
                             }
                             if (j % 2 != 0 && parsedList[j].Contains("ИНН"))
                             {
                                 parsedList[j] = $"ЗАКАЗЧИК: {parsedList[j]}";
-                                //i++;
+                                i++;
                             }
                         }
-                        //{
-
-                        //}
-
-                        //if (parsedList[i + 4].Contains("ИНН"))
-                        //{
-                        //    result.Add($"ЗАКАЗЧИК: {parsedList[i + 4]}");
-                        //    //i++;
-                        //}
                     }
                     catch { }
                 }
@@ -266,6 +266,41 @@ namespace PdfParser.BL.Normalizator
         {
             var result = Regex.Replace(text, " {2,}", " ");
             return Regex.Replace(result, ":{2,}", ":");
+        }
+
+        private List<string> RemoveDoublicatesInList(List<string> parsedList)
+        {
+            var result = new List<string>();
+            foreach (var line in parsedList)
+            {
+                result.Add(RemoveDoublicatesFromString(line));
+            }
+            return result;
+        }
+
+        private string RemoveDoublicatesFromString(string text)
+        {
+            var splitedText = text.Split(" ").ToHashSet();
+
+            return string.Join(" ", splitedText);
+        }
+
+        private List<string> MapInvoice(List<string> parsedList)
+        {
+            var result = new List<string>();
+
+            var label = string.Empty;
+            for (var i = 0; i < parsedList.Count - 1; i++)
+            {
+                var line = parsedList[i];
+                if (line.Contains("ВСЕГО")||line.Contains("ИТОГО"))
+                {
+                    result.Add(line);
+                    return result;
+                }
+                result.Add(line);
+            }
+            return result;
         }
     }
 }

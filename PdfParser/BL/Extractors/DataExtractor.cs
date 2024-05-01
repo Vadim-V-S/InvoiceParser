@@ -35,10 +35,10 @@ namespace PdfParser.BL.TextExtractors
 
             paymentHeaderTokens = new List<string>()
             {
-                "ОПЛАТА",
                 "СУММА",
                 "ЦЕНА",
-                "ТОВАРЫ"
+                "ТОВАРЫ",
+                "ОПЛАТА",
             };
 
             analyzer = new Analyzer();

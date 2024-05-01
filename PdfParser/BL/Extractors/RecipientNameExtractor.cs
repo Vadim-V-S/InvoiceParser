@@ -17,7 +17,8 @@ namespace PdfParser.BL.TextExtractors
         internal override List<string> ExtractData(List<string> keyWords)
         {
             var slice = parsedData.CutOffFooter(paymentHeaderTokens);
-            slice = slice.GetRange(0,slice.Count/3);
+            //slice = slice.CutOffTop(keyWords);
+            slice = slice.GetRange(0, slice.Count / 2);
 
             var extraction = slice.CreateListByKeyTokens(keyWords); // выборка по ключевым словам
             extraction = extraction.RemoveElementsFromListByExclusions(exclusions);      // удаление лишнего по словам исключениям
