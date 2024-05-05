@@ -6,12 +6,12 @@
         {
             RefWords.Add("\nИНН ");
         }
-        public override List<string> GetVocalbuary()
+        public override List<string> GetTokens()
         {
             var inn = new List<string>()
             {
                 "ИНН ", //ru
-                "ИНН /КПП ", //ru
+                "ИНН /КПП ",
                 "uhh ", //en
                 "uHн ",
                 "uНН ",
@@ -20,9 +20,9 @@
                 "Инн ",
                 "ИHн ",
                 "ИнH ",
-                "ann ", //en
-                "ahh ", //en
-                "АНН ",
+                "ann ",
+                "ahh ",
+                //"АНН ",
                 "АНh ",
                 "Аhh ",
                 "АhН ",

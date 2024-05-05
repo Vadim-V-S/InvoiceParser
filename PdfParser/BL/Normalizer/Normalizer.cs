@@ -1,4 +1,5 @@
 ﻿using PdfParser.Extensions;
+using PdfParser.ReferenceData;
 using PdfParser.ReferenceData.CompanyName;
 using PdfParser.ReferenceData.Interfaces;
 using System.Text.RegularExpressions;
@@ -21,7 +22,7 @@ namespace PdfParser.BL.Normalizator
         public List<string> NormalizeText(string parsedText)
         {
             var text = RemoveAllUnreadableChars(parsedText).ToUpper();
-            text = NormalizeQuotes(text);
+            text = NormalizeCharsFormat(text);
             text = NormalizeInvoiceAttributes(text);
 
             var parsedList = GetParsedList(text);
@@ -32,7 +33,7 @@ namespace PdfParser.BL.Normalizator
             parsedList = RemoveColonsAsFirstChar(parsedList);
             var result = MapInvoice(parsedList);
 
-            return parsedList;
+            return result;
         }
 
         private string RemoveAllUnreadableChars(string text)
@@ -42,19 +43,14 @@ namespace PdfParser.BL.Normalizator
                 //'!','@','#','$','%','^','&','*','(',')','_','+','=','-','\'','\\',':','|','/','`','~','.','{','}'
                 '@','#','^','&','*','_','+','=','\'','\\','|','`','~','{','}'
             };
-
             var result = new string(text.Where(c => !chars.Contains(c)).ToArray());
-            //foreach (var chr in chars)
-            //{
-            //    result= text.Replace(chr, ' ');
-            //}
+
             return result;
         }
 
-        private string NormalizeQuotes(string text)
+        private string NormalizeCharsFormat(string text)
         {
-            var result = text.Replace("«", "\"").Replace("»", "\"");
-            //result = Regex.Replace(result, " {2,}", " ");
+            var result = text.Replace("«", "\"").Replace("»", "\"").Replace("Ё", "Е");
 
             return result;
         }
@@ -82,7 +78,7 @@ namespace PdfParser.BL.Normalizator
             {
                 attribute.TargetWord = refWord.Replace("\n", "").Trim();
 
-                foreach (string word in attribute.GetVocalbuary())
+                foreach (string word in attribute.GetTokens())
                 {
                     var currentWord = word.ToUpper().Trim().Replace(" ", "");
                     if (currentWord == "ИНН/КПП")
@@ -90,9 +86,13 @@ namespace PdfParser.BL.Normalizator
                         var inn = text.GetNextWordByReferenceText(currentWord + " ");
                         var newInn = inn.Replace("/", ", КПП ");
 
-                        text = text.Replace(inn, "ИНН " + newInn).Replace(currentWord, "");
+                        if (inn.Length > 0)
+                        {
+                            text = text.Replace(inn, "ИНН " + newInn).Replace(currentWord, "");
+                        }
                     }
-                    text = new string(text.Replace(word.ToUpper(), refWord.ToUpper()));
+                    text = new string(text.Replace(word, refWord));
+                    text = new string(text.Replace(word.Trim() + ": ", refWord));
                 }
             }
 
@@ -123,8 +123,8 @@ namespace PdfParser.BL.Normalizator
             IReferenceData recipientName = new RecipientName();
             IReferenceData payerName = new PayerName();
 
-            var normalizeRecipient = UnionSeparatedKeyWordsAndNextLine(parsedList, recipientName.GetKeyWords());
-            var normalizedText = UnionSeparatedKeyWordsAndNextLine(normalizeRecipient, payerName.GetKeyWords());
+            var normalizeRecipient = UnionSeparatedKeyWordsAndNextLine(parsedList, recipientName.GetKeyTokens());
+            var normalizedText = UnionSeparatedKeyWordsAndNextLine(normalizeRecipient, payerName.GetKeyTokens());
 
             return normalizedText;
         }
@@ -146,10 +146,8 @@ namespace PdfParser.BL.Normalizator
                         result.Add($"{currentLine}: {parsedList[i + 1]}");
                         i++;
                         flag = true;
-                        //break;
                     }
                 }
-                //if (currentLine.Split(' ').Length != 1)
                 if (!flag)
                 {
                     result.Add(parsedList[i]);
@@ -164,7 +162,7 @@ namespace PdfParser.BL.Normalizator
             List<string> result = new List<string>();
 
             IReferenceData companyName = new CompanyName();
-            var refWords = companyName.GetReferenceWords();
+            var refWords = companyName.GetReferenceTokens();
             refWords.Add("ОБЩЕСТВО");
             refWords.Add("ОГРАНИЧЕННОЙ");
             refWords.Add("ОТВЕТСТВЕННОСТЬЮ");
@@ -287,19 +285,105 @@ namespace PdfParser.BL.Normalizator
 
         private List<string> MapInvoice(List<string> parsedList)
         {
+            SliceRef sliceRef = new SliceRef();
+
+            var recipientRefs = recipientName.GetReferenceTokens();
+            var accountRefs = sliceRef.GetAccountTokens();
+            var headerRefs = sliceRef.GetHeaderTokens();
+            var footerRefs = sliceRef.GetFooterTokens();
+
+            var recipientFlag = false;
+            var accountFlag = false;
+
             var result = new List<string>();
 
-            var label = string.Empty;
-            for (var i = 0; i < parsedList.Count - 1; i++)
+            for (var i = 0; i < parsedList.Count; i++)
             {
-                var line = parsedList[i];
-                if (line.Contains("ВСЕГО")||line.Contains("ИТОГО"))
+                var currentLine = parsedList[i];
+
+                bool recipientLinePos = currentLine.DoesLineContain(recipientRefs);
+                bool recipientLineNeg = currentLine.DoesLineContain(recipientName.GetExclusions());
+                bool recipientRef = currentLine.DoesLineContain(recipientName.GetKeyTokens());
+                bool accountLine = currentLine.DoesLineContain(accountRefs);
+                bool headerLine = currentLine.DoesLineContain(headerRefs);
+                bool footerLine = currentLine.DoesLineContain(footerRefs);
+
+                try
                 {
-                    result.Add(line);
-                    return result;
+                    if (recipientLinePos && recipientRef && currentLine.Trim().Split(" ").Count() > 1)
+                    {
+                        result.Add($"company!- {currentLine}");
+                    }
+
+                    if (recipientLinePos && !recipientFlag && !recipientLineNeg && currentLine.Split("\"").Count() == 3 && currentLine.Trim().Split(" ").Count() > 1)
+                    {
+                        result.Add("-recipient-");
+                        result.Add(currentLine);
+                        recipientFlag = true;
+
+                        if (parsedList[i - 1].Contains("ИНН"))
+                        {
+                            result.Add("-recipientInn-");
+                            result.Add(parsedList[i - 1]);
+                        }
+                        else if (parsedList[i + 1].Contains("ИНН"))
+                        {
+                            result.Add("-recipientInn-");
+                            result.Add(parsedList[i + 1]);
+                            i++;
+                        }
+                    }
+                    else if (recipientLinePos && !recipientFlag && !recipientLineNeg && currentLine.Contains("ИП ") && currentLine.Trim().Split(" ").Count() > 1)
+                    {
+                        result.Add("-recipient-");
+                        result.Add(currentLine);
+                        recipientFlag = true;
+
+
+                        if (parsedList[i - 1].Contains("ИНН"))
+                        {
+                            result.Add($"recipientInn!- {parsedList[i - 1]}");
+                        }
+                        else if (parsedList[i + 1].Contains("ИНН"))
+                        {
+                            result.Add($"recipientInn!- {parsedList[i + 1]}");
+                            i++;
+                        }
+                    }
+                    else if (accountLine && !accountFlag)
+                    {
+                        result.Add("-account-");
+                        result.Add(currentLine);
+
+                        accountFlag = true;
+                    }
+                    else if (headerLine && !footerLine && currentLine.Length > 10 && currentLine.Length < 80)
+                    {
+                        result.Add("-payment-");
+                    }
+                    else if (headerLine && footerLine && currentLine.Length > 10 && currentLine.Length < 80)
+                    {
+                        result.Add("-payment-");
+                    }
+                    else if (!headerLine && footerLine && currentLine.Length > 10 && currentLine.Length < 80)
+                    {
+                        result.Add("-amount-");
+
+                        result.Add(currentLine);
+                        result.Add(parsedList[i + 1]);
+                        result.Add(parsedList[i + 2]);
+                        result.Add("-end-");
+
+                        break;
+                    }
+                    else
+                    {
+                        result.Add(currentLine);
+                    }
                 }
-                result.Add(line);
+                catch { }
             }
+
             return result;
         }
     }

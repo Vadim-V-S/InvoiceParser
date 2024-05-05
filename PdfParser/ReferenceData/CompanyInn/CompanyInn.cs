@@ -15,12 +15,12 @@
             keyWords.Add("ИНН/КПП");
         }
 
-        public List<string> GetReferenceWords()
+        public List<string> GetReferenceTokens()
         {
             return inn.ConvertAll(x=>x.ToUpper());
         }
 
-        public List<string> GetKeyWords()
+        public List<string> GetKeyTokens()
         {
             return keyWords.ConvertAll(x => x.ToUpper());
         }

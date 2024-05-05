@@ -9,14 +9,28 @@ namespace PdfParser.BL.TextExtractors
         public PaymentAmountExtractor(List<string> parsedData) : base(parsedData)
         {
             referenceData = new PaymentAmount();
-            keyWords = referenceData.GetKeyWords(); //инициализируем список своих ключевых слов
+            keyWords = referenceData.GetKeyTokens(); //инициализируем список своих ключевых слов
         }
 
         internal List<string> ExtractNumbers(List<string> keyWords)
         {
+            var amountIndex = parsedData.IndexOf("-amount-");
+            var paymentIndex = parsedData.IndexOf("-payment-");
+
+            var slice = parsedData;
+
+            if (amountIndex != -1)
+            {
+                slice = parsedData.GetRange(amountIndex, parsedData.Count - amountIndex);
+            }
+            else if (paymentIndex != -1)
+            {
+                slice = parsedData.GetRange(paymentIndex, parsedData.Count - paymentIndex);
+            }
+
             string paymentText = string.Empty;
 
-            string allText = String.Join(",", parsedData).ToUpper(); // список превращаем в строку
+            string allText = String.Join(",", slice); // список превращаем в строку
 
             foreach (var word in keyWords)
             {
@@ -31,8 +45,8 @@ namespace PdfParser.BL.TextExtractors
                     var allNumbers = paymentText.GetNumbersFromString(); // получаем все числа
                     var amounts = allNumbers.Where(n => n.Contains('.')); // оставляем только те которые содержат точку
                     var result = amounts.Where(n => n.Substring(n.IndexOf('.')).Length == 3).ToList(); // оставляем только те которые содержат 2 знака после точки
-                    
-                    return result;
+
+                    return ClearResult(result);
                 }
             }
 

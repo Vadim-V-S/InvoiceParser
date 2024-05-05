@@ -2,8 +2,8 @@
 {
     public interface IReferenceData
     {
-        List<string> GetReferenceWords();
-        List<string> GetKeyWords();
+        List<string> GetReferenceTokens();
+        List<string> GetKeyTokens();
         List<string> GetExclusions();
     }
 }

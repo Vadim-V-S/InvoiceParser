@@ -10,11 +10,8 @@ namespace PdfParser.ReferenceData
         public Invoice()
         {
             invoice.Add("Счет на оплату от");
-            invoice.Add("Счёт на оплату от");
             invoice.Add("Счет от");
-            invoice.Add("Счёт от");
             invoice.Add("Счет-оферта от");
-            invoice.Add("Счёт-оферта от");
 
             keyWords.Add("счет");
             keyWords.Add("счёт");
@@ -22,11 +19,11 @@ namespace PdfParser.ReferenceData
             keyWords.Add(" № ");
         }
 
-        public List<string> GetReferenceWords()
+        public List<string> GetReferenceTokens()
         {
             return invoice.ConvertAll(x => x.ToUpper());
         }
-        public List<string> GetKeyWords()
+        public List<string> GetKeyTokens()
         {
             return keyWords.ConvertAll(x => x.ToUpper());
         }

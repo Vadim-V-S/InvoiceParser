@@ -8,7 +8,7 @@
             RefWords.Add("\nООО ");
             RefWords.Add("\nИП ");
         }
-        public override List<string> GetVocalbuary()
+        public override List<string> GetTokens()
         {
             switch (TargetWord)
             {

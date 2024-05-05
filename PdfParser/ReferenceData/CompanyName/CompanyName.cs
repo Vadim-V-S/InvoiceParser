@@ -9,25 +9,20 @@ namespace PdfParser.ReferenceData.CompanyName
         internal List<string> exclusions = new List<string>();
         public CompanyName()
         {
-            //companyName.Add("Общество с ограниченной ответственностью ");
             companyName.Add("ООО ");
             companyName.Add("АО ");
             companyName.Add("ИП ");
-            //companyName.Add("Акционерное Общество ");
-            //companyName.Add("ответственностью \"");
-            //companyName.Add("\"");
 
             keyWords.Add("ооо ");
             keyWords.Add("ао ");
             keyWords.Add("ип ");
-            //keyWords.Add(": ");
         }
 
-        public List<string> GetReferenceWords()
+        public List<string> GetReferenceTokens()
         {
             return companyName.ConvertAll(x => x.ToUpper());
         }
-        public List<string> GetKeyWords()
+        public List<string> GetKeyTokens()
         {
             return keyWords.ConvertAll(x => x.ToUpper());
         }

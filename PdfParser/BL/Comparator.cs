@@ -14,7 +14,7 @@ namespace PdfParser.BL
 
         public int GetIndexBySimpleRatio(string currentValue)
         {
-            foreach (var referenceValue in referenceData.GetReferenceWords())
+            foreach (var referenceValue in referenceData.GetReferenceTokens())
             {
                 int newLevenshteinIndex = Fuzz.Ratio(referenceValue.ToUpper(), currentValue.ToUpper());
                 GetIndex(newLevenshteinIndex);
@@ -24,7 +24,7 @@ namespace PdfParser.BL
 
         public int GetIndexByPartialRatio(string currentValue)
         {
-            foreach (var referenceValue in referenceData.GetReferenceWords())
+            foreach (var referenceValue in referenceData.GetReferenceTokens())
             {
                 int newLevenshteinIndex = Fuzz.PartialRatio(referenceValue.ToUpper(), currentValue.ToUpper());
                 GetIndex(newLevenshteinIndex);
@@ -34,7 +34,7 @@ namespace PdfParser.BL
 
         public int GetIndexByTokenRatio(string currentValue)
         {
-            foreach (var referenceValue in referenceData.GetReferenceWords())
+            foreach (var referenceValue in referenceData.GetReferenceTokens())
             {
                 int newLevenshteinIndex = Fuzz.TokenSetRatio(referenceValue.ToUpper(), currentValue.ToUpper());
                 GetIndex(newLevenshteinIndex);

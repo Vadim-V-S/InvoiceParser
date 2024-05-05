@@ -10,7 +10,7 @@ namespace PdfParser.BL.TextExtractors
         public RecipientInnExtractor(List<string> parsedData) : base(parsedData)
         {
             referenceData = new RecipientInn();
-            keyWords = referenceData.GetKeyWords();
+            keyWords = referenceData.GetKeyTokens();
             exclusions= referenceData.GetExclusions();
 
             comparator = new Comparator(new RecipientInn());
@@ -18,19 +18,25 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.CutOffFooter(paymentHeaderTokens);
-            //slice = slice.GetRange(0, slice.Count / 2);
+            var index = parsedData.IndexOf("-recipientInn-");
 
-            var extraction = slice.CreateListByKeyTokens(keyWords);
-            extraction = extraction.RemoveElementsFromListByExclusions(exclusions);
-            extraction = extraction.RemoveListElementsWithoutDigits();
+            if (index == -1)
+            {
+                var slice = parsedData.CutOffFooter(paymentHeaderTokens);
 
-            return extraction;
+                var extraction = slice.CreateListByKeyTokens(keyWords);
+                extraction = extraction.RemoveElementsFromListByExclusions(exclusions);
+                extraction = extraction.RemoveListElementsWithoutDigits();
+
+                return extraction;
+            }
+
+            return new List<string>() { parsedData[index + 1] };
         }
 
         public override string GetResultValue()
         {
-            var extraction = ExtractData(keyWords);
+            var extraction = ClearResult(ExtractData(keyWords));
 
             var inn = GetResultByIndex(extraction, new RecipientInn(), comparator.GetIndexByPartialRatio, keyWords);
             inn = inn.GetNextWordByReferenceText("ИНН ");

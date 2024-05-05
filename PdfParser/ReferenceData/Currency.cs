@@ -26,11 +26,11 @@ namespace PdfParser.ReferenceData
             keyWords.Add("юаней");
         }
 
-        public List<string> GetReferenceWords()
+        public List<string> GetReferenceTokens()
         {
             return currency.ConvertAll(x => x.ToUpper());
         }
-        public List<string> GetKeyWords()
+        public List<string> GetKeyTokens()
         {
             return keyWords.ConvertAll(x => x.ToUpper());
         }

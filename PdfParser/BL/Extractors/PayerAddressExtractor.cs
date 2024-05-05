@@ -10,7 +10,7 @@ namespace PdfParser.BL.TextExtractors
         public PayerAddressExtractor(List<string> parsedData) : base(parsedData)
         {
             referenceData = new PayerAddress();
-            keyWords = referenceData.GetKeyWords();
+            keyWords = referenceData.GetKeyTokens();
             exclusions = referenceData.GetExclusions();
 
             comparator = new Comparator(new PayerAddress());
@@ -18,7 +18,7 @@ namespace PdfParser.BL.TextExtractors
 
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.SliceListByTwoWords(GetLastUsedToken(), paymentHeaderTokens);
+            var slice = parsedData.SliceListByTwoTokens(GetLastUsedToken(), paymentHeaderTokens);
 
             var extraction = slice.CreateListByKeyTokens(keyWords);
             extraction = extraction.RemoveElementsFromListByExclusions(exclusions);

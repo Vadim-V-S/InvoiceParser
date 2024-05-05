@@ -10,7 +10,7 @@ namespace PdfParser.BL.TextExtractors
         public PayerInnExtractor(List<string> parsedData) : base(parsedData)
         {
             referenceData = new PayerInn();
-            keyWords = referenceData.GetKeyWords();
+            keyWords = referenceData.GetKeyTokens();
             exclusions = referenceData.GetExclusions();
 
             comparator = new Comparator(new PayerInn());
@@ -28,7 +28,7 @@ namespace PdfParser.BL.TextExtractors
             {
                 extraction = extraction.RemoveElementsFromListByToken(usedTokens[token.recipientInn]);
 
-                return analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
+                return analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceTokens()).ToList());
             }
 
             return extraction;
@@ -36,7 +36,7 @@ namespace PdfParser.BL.TextExtractors
 
         public override string GetResultValue()
         {
-            var extraction = ExtractData(keyWords);
+            var extraction = ClearResult(ExtractData(keyWords));
 
             var inn = GetResultByIndex(extraction, new PayerInn(), comparator.GetIndexByPartialRatio, keyWords);
             inn = inn.GetNextWordByReferenceText("ИНН ");

@@ -5,6 +5,6 @@
         internal List<string> RefWords = new List<string>();
         internal string TargetWord = string.Empty;
 
-        public abstract List<string> GetVocalbuary();
+        public abstract List<string> GetTokens();
     }
 }

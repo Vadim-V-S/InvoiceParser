@@ -29,14 +29,16 @@ namespace PdfParser.ReferenceData
             exclusions.Add("инн ");
             exclusions.Add("внимание");
             exclusions.Add("банк ");
-            exclusions.Add("bank ");
+            exclusions.Add("заказчик");
+            exclusions.Add("покупатель");
+            exclusions.Add("плательщик");
         }
 
-        public List<string> GetReferenceWords()
+        public List<string> GetReferenceTokens()
         {
             return paymentName.ConvertAll(x => x.ToUpper());
         }
-        public List<string> GetKeyWords()
+        public List<string> GetKeyTokens()
         {
             return keyWords.ConvertAll(x => x.ToUpper());
         }

@@ -11,7 +11,7 @@ namespace PdfParser.BL.TextExtractors
             usedTokens.Clear();
 
             referenceData = new Invoice();
-            keyWords = referenceData.GetKeyWords();
+            keyWords = referenceData.GetKeyTokens();
 
             comparator = new Comparator(new Invoice());
         }
@@ -27,7 +27,7 @@ namespace PdfParser.BL.TextExtractors
 
         public override string GetResultValue()
         {
-            var extraction = ExtractData(keyWords);
+            var extraction = ClearResult(ExtractData(keyWords));
 
             var result = "Нет Данных!";
             if (extraction.Count != 0)

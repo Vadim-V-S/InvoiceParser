@@ -10,7 +10,7 @@ namespace PdfParser.BL.TextExtractors
         public RecipientAddressExtractor(List<string> parsedData) : base(parsedData)
         {
             referenceData = new RecipientAddress();
-            keyWords = referenceData.GetKeyWords();
+            keyWords = referenceData.GetKeyTokens();
             exclusions = referenceData.GetExclusions();
 
             comparator = new Comparator(new RecipientAddress());

@@ -10,21 +10,22 @@ namespace PdfParser.BL.TextExtractors
         public CurrencyExtractor(List<string> parsedData) : base(parsedData)
         {
             referenceData = new Currency();
-            keyWords = referenceData.GetKeyWords();
+            keyWords = referenceData.GetKeyTokens();
 
             comparator = new Comparator(new Currency());
         }
 
         internal virtual List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.CreateListByKeyTokens(keyWords);
 
-            return slice;
+            var result = parsedData.CreateListByKeyTokens(keyWords);
+
+            return result;
         }
 
         public override string GetResultValue()
         {
-            var extraction = ExtractData(keyWords);
+            var extraction = ClearResult(ExtractData(keyWords));
 
             var result = "Нет Данных!";
             if (extraction.Count != 0)

@@ -19,27 +19,15 @@ namespace PdfParser.BL.TextExtractors
         internal static Dictionary<string, string> usedTokens = new Dictionary<string, string>(); // список для уже использованных выбранных значений. Используется только для получения наименований компаний
         internal Token token = new Token();
         internal Analyzer analyzer;
+        internal SliceRef sliceRef = new SliceRef();
 
         public DataExtractor(List<string> parsedData) //инициализация
         {
             this.parsedData = parsedData;
             keyWords = new List<string>();
 
-            invoiceFooterTokens = new List<string>()
-            {
-                "НАЗНАЧЕНИЕ",
-                "ВСЕГО",
-                "К ОПЛАТЕ"
-                //"ИТОГО"
-            };
-
-            paymentHeaderTokens = new List<string>()
-            {
-                "СУММА",
-                "ЦЕНА",
-                "ТОВАРЫ",
-                "ОПЛАТА",
-            };
+            invoiceFooterTokens = sliceRef.GetFooterTokens();
+            paymentHeaderTokens = sliceRef.GetHeaderTokens();
 
             analyzer = new Analyzer();
         }
@@ -96,6 +84,20 @@ namespace PdfParser.BL.TextExtractors
         {
             var extraction = ExtractData(keyWords);
             var result = GetResultByIndex(extraction, new Invoice(), comparator.GetIndexByPartialRatio, keyWords);
+
+            return result;
+        }
+
+        internal List<string> ClearResult(List<string> data)
+        {
+            var result = new List<string>();
+            foreach(var line in data)
+            {
+                if(line!="-recipient-" && line != "-recipientInn-" && line != "-payment-" && line != "-amount-")
+                {
+                    result.Add(line.Replace("company!-",""));
+                }
+            }
 
             return result;
         }

@@ -9,30 +9,35 @@ namespace PdfParser.BL.TextExtractors
         public RecipientNameExtractor(List<string> parsedData) : base(parsedData)
         {
             referenceData = new RecipientName();
-            keyWords = referenceData.GetKeyWords();
+            keyWords = referenceData.GetKeyTokens();
             exclusions = referenceData.GetExclusions();
 
             comparator = new Comparator(new RecipientName());
         }
         internal override List<string> ExtractData(List<string> keyWords)
         {
-            var slice = parsedData.CutOffFooter(paymentHeaderTokens);
-            //slice = slice.CutOffTop(keyWords);
-            slice = slice.GetRange(0, slice.Count / 2);
+            var index = parsedData.IndexOf("-recipient-");
 
-            var extraction = slice.CreateListByKeyTokens(keyWords); // выборка по ключевым словам
-            extraction = extraction.RemoveElementsFromListByExclusions(exclusions);      // удаление лишнего по словам исключениям
-            
-            keyWords.Add(":");
-            keyWords.Add("\"");
-            var result = analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceWords()).ToList());
+            if (index == -1)
+            {
+                var slice = parsedData.CutOffFooter(paymentHeaderTokens);
+                slice = slice.GetRange(0, slice.Count / 2);
 
-            return result;
+                var extraction = slice.CreateListByKeyTokens(keyWords); // выборка по ключевым словам
+                extraction = extraction.RemoveElementsFromListByExclusions(exclusions);      // удаление лишнего по словам исключениям
+
+                keyWords.Add(":");
+                keyWords.Add("\"");
+
+                return analyzer.ReturnElementsByHeaviestWeights(extraction, keyWords.Union(referenceData.GetReferenceTokens()).ToList());
+            }
+
+            return new List<string>() { parsedData[index + 1] };
         }
 
         public override string GetResultValue()
         {
-            var extraction = ExtractData(keyWords);
+            var extraction = ClearResult(ExtractData(keyWords));
 
             var result = "Нет Данных!";
             if (extraction.Count != 0)

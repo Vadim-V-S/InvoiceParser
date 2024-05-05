@@ -23,7 +23,7 @@ namespace PdfParser.Extensions
                 return targetValue;
             }
 
-            return "Нет данных!";
+            return "";
         }
 
         // удаляем элементы списка по словам исключениям
@@ -105,10 +105,10 @@ namespace PdfParser.Extensions
 
             foreach (var token in tokens)
             {
-                var endIndex = result.IndexOf(result.FirstOrDefault(v => v.Contains(token)));
-                if (endIndex > 0)
+                var lineIndex = result.IndexOf(result.FirstOrDefault(v => v.Contains(token)));
+                if (lineIndex > 0)
                 {
-                    result = result.GetRange(0, endIndex).CutOffTopInRecursion(tokens);
+                    result = result.GetRange(lineIndex, allText.Count - 1- lineIndex).CutOffTopInRecursion(tokens);
                 }
             }
 
@@ -204,7 +204,7 @@ namespace PdfParser.Extensions
             return index;
         }
 
-        public static List<string> SliceListByTwoWords(this List<string> allText, string token, IEnumerable<string> footerTokens)
+        public static List<string> SliceListByTwoTokens(this List<string> allText, string token, IEnumerable<string> footerTokens)
         {
             var startIndex = allText.IndexOf(allText.FirstOrDefault(v => v.Replace(",", "").Contains(token)));
             foreach (var footerToken in footerTokens)
@@ -330,7 +330,7 @@ namespace PdfParser.Extensions
         }
 
 
-        public static bool DoesListContainsDigits(this List<string> text)
+        public static bool DoesListContainDigits(this List<string> text)
         {
             foreach (var line in text)
             {
@@ -350,123 +350,10 @@ namespace PdfParser.Extensions
             return false;
         }
 
-
-        // удаляем элементы списка состоящие из одного слова
-        //public static List<string> RemoveTheOnlyWordElementFromList(this IEnumerable<string> allText)
-        //{
-        //    var result = new List<string>();
-        //    foreach (string line in allText)
-        //    {
-        //        if (line.Trim().Split(' ').Length != 1)
-        //        {
-        //            result.Add(line.Trim());
-        //        }
-        //    }
-
-        //    return result;
-        //}
-
-        // это срезы
-        //public static List<string> SliceListUpToWords(this List<string> allText, IEnumerable<string> words)
-        //{
-        //    foreach (var word in words)
-        //    {
-        //        var endIndex = allText.IndexOf(allText.FirstOrDefault(v => v.Contains(word)));
-        //        if (endIndex > 0)
-        //        {
-        //            return allText.GetRange(0, endIndex);
-        //        }
-        //    }
-
-        //    return new List<string>() { "Нет данных!" };
-        //}
-
-        //public static List<string> SliceFollowingOfWord(this List<string> allText, string word)
-        //{
-        //    var line = allText.FirstOrDefault(l => l.Contains(word));
-        //    var index = allText.IndexOf(line);
-
-        //    return allText.GetRange(index,allText.Count-index);
-        //}
-
-        //public static List<string> SliceListByTwoWords(this List<string> allText, List<string> startWords, List<string> endWords)
-        //{
-        //    var startIndex = GetMinIndex(allText, startWords, 0) + 1;
-        //    var endIndex = GetMinIndex(allText, endWords, startIndex) - 1;
-
-        //    if (endIndex > 0 && startIndex > 0 && endIndex > startIndex)
-        //    {
-        //        return allText.GetRange(startIndex, endIndex - startIndex);
-        //    }
-
-        //    return new List<string>() { "Нет данных!" };
-        //}
-
-        //public static bool DoesListContainWord(this List<string> allText, IEnumerable<string> words)
-        //{
-        //    foreach (var word in words)
-        //    {
-        //        if (allText.Any(i => i.Contains(word)))
-        //            return true;
-        //    }
-        //    return false;
-        //}
-
-        //// выбираем наиболее близкий текст (адрес) к требуемому.
-        //public static List<string> GetClosestElementToWord(this List<string> allText, string WordToCompare, IEnumerable<string> refWords)
-        //{
-        //    var result = new List<string>();
-        //    var refValue = 0;
-        //    var value = GetElementIndexFromListByPartialMatch(allText, WordToCompare);
-
-        //    foreach (var word in refWords)
-        //    {
-        //        refValue = GetElementIndexFromListByPartialMatch(allText, word);
-
-        //        var dif = refValue - value;
-
-        //        if (dif <= 2 && dif > 0)
-        //        {
-        //            result.Add(word.Trim());
-        //        }
-        //    }
-        //    if (result.Count > 0)
-        //    {
-        //        return result;
-        //    }
-
-        //    return result;
-        //}
-
-        //public static string ReturnNextItemWhenContainsKeyWord(this List<string> allText, List<string> refWords, string keyWord)
-        //{
-        //    foreach (var refWord in refWords)
-        //    {
-        //        var index = allText.IndexOf(refWord);
-
-        //        if (index > 0)
-        //        {
-        //            if (allText[index - 1].Contains(keyWord) || allText[index + 1].Contains(keyWord))
-        //                return refWord;
-        //        }
-        //    }
-
-        //    return string.Empty;
-        //}
-
-
-        // это помощник возвращает индекс строки по частичному совпадению
-        //private static int GetElementIndexFromListByPartialMatch(this List<string> allText, string text)
-        //{
-        //    for (int i = 0; i < allText.Count; i++)
-        //    {
-        //        if (allText[i].Contains(text))
-        //        {
-        //            return i;
-        //        };
-        //    }
-
-        //    return -1;
-        //}
+        public static bool DoesLineContain(this string line, List<string> refData)
+        {
+            //line = line.Replace(" ", "");
+            return refData.Any(y => line.Trim().Contains(y.Trim()));
+        }
     }
 }

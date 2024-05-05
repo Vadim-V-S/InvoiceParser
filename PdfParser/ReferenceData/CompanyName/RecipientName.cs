@@ -24,5 +24,17 @@ namespace PdfParser.ReferenceData.CompanyName
             exclusions.Add("грузополучател");
             exclusions.Add("bank");
         }
+        public List<string> GetReferenceTokens()
+        {
+            return companyName.ConvertAll(x => x.ToUpper());
+        }
+        public List<string> GetKeyTokens()
+        {
+            return keyWords.ConvertAll(x => x.ToUpper());
+        }
+        public List<string> GetExclusions()
+        {
+            return exclusions.ConvertAll(x => x.ToUpper());
+        }
     }
 }
