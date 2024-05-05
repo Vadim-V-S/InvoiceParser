@@ -91,8 +91,7 @@ namespace PdfParser.BL.Normalizator
                             text = text.Replace(inn, "ИНН " + newInn).Replace(currentWord, "");
                         }
                     }
-                    text = new string(text.Replace(word, refWord));
-                    text = new string(text.Replace(word.Trim() + ": ", refWord));
+                    text = new string(text.Replace(word, refWord).Replace(word.Trim() + ": ", refWord));
                 }
             }
 
